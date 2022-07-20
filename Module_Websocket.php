@@ -106,7 +106,7 @@ window.GDO_CONFIG.ws_autoconnect = %s;',
 	{
 	    if ($this->cfgLeftBar())
 	    {
-	    	$navbar = GDT_Page::$INSTANCE->leftNav;
+	    	$navbar = GDT_Page::instance()->leftBar();
 	    	if (module_enabled('Angular'))
 	    	{
 	    		$navbar->addField(

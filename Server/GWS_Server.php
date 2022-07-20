@@ -4,7 +4,7 @@ namespace GDO\Websocket\Server;
 use GDO\Core\Debug;
 use GDO\Core\Logger;
 use GDO\Core\Module_Core;
-use GDO\File\Filewalker;
+use GDO\Util\Filewalker;
 use GDO\Net\GDT_IP;
 use GDO\Session\GDO_Session;
 use GDO\User\GDO_User;
