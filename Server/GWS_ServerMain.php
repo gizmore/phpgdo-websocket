@@ -27,7 +27,7 @@ $_REQUEST['me'] = 'Run';
 # Bootstrap
 class GWS_ServerMain extends Application
 {
-	public function isCLI() { return true; }
+	public function isCLI() : bool { return true; }
 	public function isWebsocket() { return true; }
 }
 new GWS_ServerMain();
