@@ -12,7 +12,7 @@ use GDO\Websocket\Module_Websocket;
 use GDO\UI\GDT_Page;
 
 # Load config
-require_once 'GDO6.php';
+require_once 'GDO7.php';
 require_once 'protected/config.php'; # <-- You might need to adjust this path.
 
 require_once 'GDO/Websocket/gwf4-ratchet/autoload.php';

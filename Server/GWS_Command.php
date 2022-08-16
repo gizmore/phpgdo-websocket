@@ -11,7 +11,7 @@ use GDO\Core\GDT_String;
 use GDO\User\GDO_User;
 use GDO\Maps\GDT_Position;
 use GDO\Table\GDT_PageMenu;
-use GDO\DB\GDT_Float;
+use GDO\Core\GDT_Float;
 use GDO\Core\GDO_Exception;
 use GDO\UI\GDT_Page;
 

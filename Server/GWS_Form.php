@@ -12,7 +12,7 @@ use GDO\Core\GDT_Checkbox;
 use GDO\Core\GDT;
 use GDO\Core\Logger;
 use GDO\Core\GDO_Exception;
-use GDO\DB\GDT_Float;
+use GDO\Core\GDT_Float;
 use GDO\Core\GDT_Enum;
 use GDO\Date\GDT_Timestamp;
 
