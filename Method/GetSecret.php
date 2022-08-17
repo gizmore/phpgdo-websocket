@@ -28,4 +28,9 @@ final class GetSecret extends MethodAjax
 		return GDT_Array::makeWith($json);
 	}
 	
+	public function getMethodTitle() : string
+	{
+		return t('btn_connect');
+	}
+	
 }

@@ -15,4 +15,9 @@ final class Exec extends MethodPage
 {
 	public function getPermission() : ?string { return Module_Websocket::instance()->cfgClientPermission(); }
 
+	public function getMethodTitle() : string
+	{
+		return "Websocket Exec";
+	}
+	
 }
