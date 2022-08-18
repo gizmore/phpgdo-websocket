@@ -29,7 +29,7 @@ use GDO\User\GDO_User;
  * 
  * @author gizmore
  * 
- * @version 7.0.0
+ * @version 7.0.1
  * @since 6.5.0
  */
 final class Module_Websocket extends GDO_Module
@@ -40,6 +40,13 @@ final class Module_Websocket extends GDO_Module
 	public int $priority = 45;
 	public function onLoadLanguage() : void { $this->loadLanguage('lang/websocket'); }
 	public function thirdPartyFolders() : array { return ['/gwf4-ratchet/']; }
+	
+	public function getDependencies() : array
+	{
+		return [
+			'Session',
+		];
+	}
 	
 	##############
 	### Config ###
@@ -107,11 +114,6 @@ window.GDO_CONFIG.ws_autoconnect = %s;',
 	    if ($this->cfgLeftBar())
 	    {
 	    	$navbar = GDT_Page::instance()->leftBar();
-	    	if (module_enabled('Angular'))
-	    	{
-	    		$navbar->addField(
-	    			GDT_Template::make()->template('Websocket', 'ws-connect-bar.php'));
-	    	}
 	    	
 	    	if (GDO_User::current()->hasPermission($this->cfgClientPermission()))
 	    	{
