@@ -19,11 +19,8 @@ use GDO\Core\ModuleLoader;
 use GDO\Core\WithInstance;
 use GDO\Core\GDO_Hook;
 use GDO\Core\GDO;
-use GDO\Language\Trans;
 use GDO\Core\Application;
-use GDO\Date\Time;
-use GDO\UI\GDT_Page;
-use GDO\Core\GDT_Response;
+use GDO\Core\GDO_Error;
 
 require_once 'GWS_Message.php';
 require_once 'GDO/Websocket/gwf4-ratchet/autoload.php';
@@ -49,13 +46,21 @@ final class GWS_Server implements MessageComponentInterface
 		{
 			# all fine
 		}
-		elseif (GDO_IPC)
+		elseif (GDO_IPC === 'ipc')
 		{
 			for ($i = 1; $i < GDO_IPC; $i++)
 			{
 				msg_remove_queue(msg_get_queue($i));
 			}
 			$this->initIPC();
+		}
+		elseif (GDO_IPC === 'none')
+		{
+			# all fine
+		}
+		else
+		{
+			throw new GDO_Error('err_invalid_ipc');
 		}
 	}
 	
@@ -67,7 +72,7 @@ final class GWS_Server implements MessageComponentInterface
 	
 	public function mainloop($timerInterval=0)
 	{
-		Logger::logMessage("GWS_Server::mainloop()");
+		Logger::logMessage("GWS_Server::mainloop($timerInterval)");
 		if ($timerInterval > 0)
 		{
 			$this->server->loop->addPeriodicTimer($timerInterval/1000.0, [$this->handler, 'timer']);
@@ -80,9 +85,17 @@ final class GWS_Server implements MessageComponentInterface
 			GDO_Hook::table()->truncate();
 			$this->server->loop->addPeriodicTimer(3.14, [$this, 'ipcdbTimer']);
 		}
-		elseif (GDO_IPC)
+		elseif (GDO_IPC === 'ipc')
 		{
 			$this->server->loop->addPeriodicTimer(0.250, [$this, 'ipcTimer']);
+		}
+		elseif (GDO_IPC === 'none')
+		{
+			# all ok
+		}
+		else
+		{
+			throw new GDO_Error('err_invalid_ipc');
 		}
 		$this->server->run();
 	}
@@ -113,7 +126,9 @@ final class GWS_Server implements MessageComponentInterface
 	public function ipcTimer()
 	{
 	    Application::updateTime();
-	    $message = null; $messageType = 0; $error = 0;
+	    $message = null;
+	    $messageType = 0;
+	    $error = 0;
 		if (msg_receive($this->ipc, 0x612, $messageType, 65535, $message, true, MSG_IPC_NOWAIT, $error))
 		{
 			if ($message)
@@ -164,16 +179,13 @@ final class GWS_Server implements MessageComponentInterface
 		else
 		{
 			try {
-				GDT_Page::$INSTANCE->reset();
-				GDT_Response::newWith();
-// 				$_REQUEST = ['_fmt'=>'ws']; # start with a blank request emulation
+				$app = Application::$INSTANCE;
+				$app->reset(true);
+				$app->inputs([]);
 				$_GET = [];
 				$_POST = [];
 				$_REQUEST = [];
 				$_FILES = [];
-				$_REQUEST['_fmt'] = 'json';
-				$_REQUEST['_ajax'] = 1;
-				GDT_Page::$INSTANCE->reset();
 				/**
 				 * @var GDO_User $user
 				 */
@@ -181,10 +193,10 @@ final class GWS_Server implements MessageComponentInterface
 				GDO_User::setCurrent($user);
 				$sessid = $user->tempGet('sess_id');
 				GDO_Session::reloadID($sessid);
-				$langISO = $user->tempGet('lang_iso');
-				$langISO = $langISO ? $langISO : $user->getLangISO();
-				Trans::setISO($langISO);
-				Time::setTimezone($user->getTimezone());
+// 				$langISO = $user->tempGet('lang_iso');
+// 				$langISO = $langISO ? $langISO : $user->getLangISO();
+// 				Trans::setISO($langISO);
+// 				Time::setTimezone($user->getTimezone());
 				$this->handler->executeMessage($message);
 				GDO_Session::commit();
 			}

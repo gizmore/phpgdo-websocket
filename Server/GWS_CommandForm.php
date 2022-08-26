@@ -7,12 +7,12 @@ use GDO\Form\MethodForm;
 use GDO\Core\GDT_Response;
 use GDO\Core\GDT_String;
 use GDO\Core\GDT_Int;
-use GDO\Core\GDT_JSONResponse;
 use GDO\Core\GDT;
 use GDO\Core\GDO_Exception;
 use GDO\Core\Website;
 use GDO\UI\GDT_Success;
 use GDO\Session\GDO_Session;
+use GDO\Core\GDT_JSON;
 
 /**
  * Call MethodForm via websockets.
@@ -50,7 +50,7 @@ abstract class GWS_CommandForm extends GWS_Command
 		$this->selectSubmit($form);
 		$this->removeCSRF($form);
 // 		$this->removeCaptcha($form);
-		$response = $method->executeWithInit();
+		$response = $method->executeWithInputs([]);
 		$this->postExecute($msg, $form, $response);
 	}
 	
@@ -98,7 +98,7 @@ abstract class GWS_CommandForm extends GWS_Command
 	private function payloadFromField(GDT $gdt)
 	{
 		$payload = '';
-		if ($gdt instanceof GDT_JSONResponse)
+		if ($gdt instanceof GDT_JSON)
 		{
 			foreach ($gdt->getFields() as $gdt)
 			{
@@ -136,31 +136,31 @@ abstract class GWS_CommandForm extends GWS_Command
 	protected function getSubmits(GDT_Form $form)
 	{
 		$submits = [];
-		foreach ($form->getFieldsRec() as $field)
+		foreach ($form->getAllFields() as $field)
 		{
 		    if ($field instanceof GDT_Submit)
 		    {
 		        $submits[] = $field;
 		    }
 		}
-		foreach ($form->actions()->getFieldsRec() as $field)
-		{
-		    if ($field instanceof GDT_Submit)
-		    {
-		        $submits[] = $field;
-		    }
-		}
+// 		foreach ($form->actions()->getFieldsRec() as $field)
+// 		{
+// 		    if ($field instanceof GDT_Submit)
+// 		    {
+// 		        $submits[] = $field;
+// 		    }
+// 		}
 		return $submits;
 	}
 	
 	protected function removeCaptcha(GDT_Form $form)
 	{
-		$form->removeField('captcha');
+		$form->removeFieldNamed('captcha');
 	}
 	
 	protected function removeCSRF(GDT_Form $form)
 	{
-		$form->removeField('xsrf');
+		$form->removeFieldNamed('xsrf');
 	}
 	
 	protected function selectSubmit(GDT_Form $form)

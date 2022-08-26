@@ -36,7 +36,7 @@ final class GWS_Message
 	public function replyText($command, $data='')
 	{
 		$payload = $this->mid > 0 ? "$command:MID:$this->mid:$data" : "$command:$data";
-		Logger::logWebsocket(sprintf("%s << %s", $this->user() ? $this->user()->displayName() : '???', $payload));
+		Logger::logWebsocket(sprintf("%s << %s", $this->user() ? $this->user()->renderUserName() : '???', $payload));
 		return $this->from->send($payload);
 	}
 	
@@ -49,7 +49,7 @@ final class GWS_Message
 	 */
 	public function replyBinary($command, $data='')
 	{
-		Logger::logWebsocket(sprintf("%s << BIN", $this->user() ? $this->user()->displayName() : '???'));
+		Logger::logWebsocket(sprintf("%s << BIN", $this->user() ? $this->user()->renderUserName() : '???'));
 		$command |= $this->mid > 0 ? 0x8000 : 0; # Set LSB to mark MID reply sync msg mode.
 		$payload = $this->write16($command);
 		$payload.= $this->mid > 0 ? $this->write24($this->mid) : '';

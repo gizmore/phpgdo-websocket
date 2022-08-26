@@ -60,7 +60,7 @@ final class Module_Websocket extends GDO_Module
 			GDT_Int::make('ws_port')->bytes(2)->unsigned()->initial('61221'),
 			GDT_Duration::make('ws_timer')->initial('0s'),
 			GDT_Path::make('ws_processor')->initial($this->defaultProcessorPath())->existingFile(),
-			GDT_Url::make('ws_url')->initial('ws://'.GDT_Url::host().':61221')->schemes('wss', 'ws'),
+			GDT_Url::make('ws_url')->initial('ws://'.GDT_Url::host().':61221')->schemes('wss', 'ws')->allowAll(false),
 		    GDT_Checkbox::make('ws_left_bar')->initial('1'),
 		];
 	}

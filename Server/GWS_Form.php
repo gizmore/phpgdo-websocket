@@ -42,7 +42,7 @@ final class GWS_Form
 	
 	public static function bindForm(GDT_Form $form, GWS_Message $msg)
 	{
-		self::bindFields($form->getFields(), $msg);
+		self::bindFields($form->getAllFields(), $msg);
 		return $form;
 	}
 	
