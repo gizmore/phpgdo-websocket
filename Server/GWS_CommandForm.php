@@ -56,7 +56,7 @@ abstract class GWS_CommandForm extends GWS_Command
 	
 	public function postExecute(GWS_Message $msg, GDT_Form $form, GDT_Response $response)
 	{
-		if ($response->isError())
+		if ($response->hasError())
 		{
 			echo print_r($response->displayJSON(), 1);
 			$msg->replyErrorMessage($msg->cmd(), $response->displayJSON());
