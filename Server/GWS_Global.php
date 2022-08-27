@@ -22,7 +22,10 @@ final class GWS_Global
 		{
 			if (isset(self::$CONNECTIONS[$user->getID()]))
 			{
-				GWS_Global::disconnect($user, t('err_was_already_connected'));
+				if ($conn !== self::$CONNECTIONS[$user->getID()])
+				{
+					GWS_Global::disconnect($user, t('err_was_already_connected'));
+				}
 			}
 			self::$USERS[$user->getID()] = $user;
 			self::$CONNECTIONS[$user->getID()] = $conn;
