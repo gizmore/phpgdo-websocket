@@ -46,6 +46,7 @@ Database::init();
 GDO_Session::init(GDO_SESS_NAME, GDO_SESS_DOMAIN, GDO_SESS_TIME, !GDO_SESS_JS, GDO_SESS_HTTPS);
 ModuleLoader::instance()->loadModulesCache();
 // GDO_Session::instance();
+define('GDO_CORE_STABLE', true); # all fine? @deprecated
 
 # Create WS
 $gws = Module_Websocket::instance();

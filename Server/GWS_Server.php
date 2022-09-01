@@ -193,10 +193,7 @@ final class GWS_Server implements MessageComponentInterface
 				GDO_User::setCurrent($user);
 				$sessid = $user->tempGet('sess_id');
 				GDO_Session::reloadID($sessid);
-// 				$langISO = $user->tempGet('lang_iso');
-// 				$langISO = $langISO ? $langISO : $user->getLangISO();
-// 				Trans::setISO($langISO);
-// 				Time::setTimezone($user->getTimezone());
+				Logger::init($user->renderUserName(), Logger::_ALL&~Logger::BUFFERED);
 				$this->handler->executeMessage($message);
 				GDO_Session::commit();
 			}
