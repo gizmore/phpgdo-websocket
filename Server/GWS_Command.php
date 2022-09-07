@@ -14,6 +14,8 @@ use GDO\Table\GDT_PageMenu;
 use GDO\Core\GDT_Float;
 use GDO\Core\GDO_Exception;
 use GDO\UI\GDT_Page;
+use GDO\Core\GDT_Object;
+use GDO\Core\GDT_ObjectSelect;
 
 /**
  * GWS_Commands have to register via GWS_Commands::register($code, GWS_Command, $binary=true)
@@ -62,35 +64,46 @@ abstract class GWS_Command
 			
 			if ($field instanceof GDT_Position)
 			{
+				echo "Writing {$field->name} as position.\n";
 				$payload .= GWS_Message::wrF(floatval($field->getLat()));
 				$payload .= GWS_Message::wrF(floatval($field->getLng()));
 			}
-			elseif ($field instanceof GDT_String)
+// 			elseif ($field instanceof GDT_ObjectSelect)
+// 			{
+// 				echo "Writing {$field->name} as object int.\n";
+// 				$payload .= GWS_Message::wrN($field->bytes, $gdo->gdoVar($field->name));
+// 			}
+			elseif ($field instanceof GDT_Enum)
 			{
-				$payload .= GWS_Message::wrS($gdo->gdoVar($field->name));
+				echo "Writing {$field->name} as enum.\n";
+				$value = array_search($gdo->gdoVar($field->name), $field->enumValues);
+				$payload .= GWS_Message::wr16($value === false ? 0 : $value + 1);
 			}
 			elseif ( ($field instanceof GDT_Decimal) ||
 					 ($field instanceof GDT_Float) )
 			{
+				echo "Writing {$field->name} as float.\n";
 				$payload .= GWS_Message::wrF($gdo->gdoVar($field->name));
 			}
 			elseif ($field instanceof GDT_Int)
 			{
+				echo "Writing {$field->name} as int.\n";
 				$payload .= GWS_Message::wrN($field->bytes, $gdo->gdoVar($field->name));
-			}
-			elseif ($field instanceof GDT_Enum)
-			{
-				$value = array_search($gdo->gdoVar($field->name), $field->enumValues);
-				$payload .= GWS_Message::wr16($value === false ? 0 : $value + 1);
 			}
 			elseif ($field instanceof GDT_Timestamp)
 			{
+				echo "Writing {$field->name} as timestamp.\n";
 				$time = 0;
 				if ($date = $gdo->gdoVar($field->name))
 				{
 					$time = Time::getTimestamp($date);
 				}
 				$payload .= GWS_Message::wr32(floor($time));
+			}
+			elseif ($field instanceof GDT_String)
+			{
+				echo "Writing {$field->name} as string.\n";
+				$payload .= GWS_Message::wrS($gdo->gdoVar($field->name));
 			}
 			else
 			{

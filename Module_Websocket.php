@@ -13,7 +13,6 @@ use GDO\Core\GDT_Checkbox;
 use GDO\Core\GDT_Int;
 use GDO\Core\GDT_Path;
 use GDO\Core\GDT_String;
-use GDO\Core\GDT_Template;
 use GDO\Core\Javascript;
 use GDO\UI\GDT_Link;
 use GDO\UI\GDT_Container;
