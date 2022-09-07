@@ -10,6 +10,7 @@ use GDO\Language\Trans;
 use GDO\Session\GDO_Session;
 use GDO\Websocket\Module_Websocket;
 use GDO\Core\GDT;
+use GDO\Core\Method\Stub;
 use GDO\Form\GDT_Form;
 
 # Load config
@@ -25,6 +26,8 @@ $_REQUEST['_ajax'] = '1';
 $_REQUEST['_fmt'] = 'json';
 $_REQUEST['_mo'] = 'Websocket';
 $_REQUEST['_me'] = 'Run';
+global $me;
+$me = Stub::make();
 
 # Bootstrap
 class GWS_ServerMain extends Application
