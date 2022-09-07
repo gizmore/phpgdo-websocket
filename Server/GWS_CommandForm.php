@@ -3,16 +3,16 @@ namespace GDO\Websocket\Server;
 
 use GDO\Form\GDT_Form;
 use GDO\Form\GDT_Submit;
-use GDO\Form\MethodForm;
 use GDO\Core\GDT_Response;
 use GDO\Core\GDT_String;
 use GDO\Core\GDT_Int;
 use GDO\Core\GDT;
 use GDO\Core\GDO_Exception;
-use GDO\Core\Website;
+use GDO\Core\Method;
 use GDO\UI\GDT_Success;
 use GDO\Session\GDO_Session;
 use GDO\Core\GDT_JSON;
+use GDO\CLI\CLI;
 
 /**
  * Call MethodForm via websockets.
@@ -25,13 +25,13 @@ abstract class GWS_CommandForm extends GWS_Command
 {
 
 	/**
-	 *
-	 * @return MethodForm
+	 * @return Method
 	 */
 	public abstract function getMethod();
 
-	public function fillRequestVars(GWS_Message $msg)
+	public function fillRequestVars(GWS_Message $msg, Method $method)
 	{
+		
 	}
 
 	public function execute(GWS_Message $msg)
@@ -39,12 +39,10 @@ abstract class GWS_CommandForm extends GWS_Command
 		parent::execute($msg);
 
 		$method = $this->getMethod();
-
-		$this->fillRequestVars($msg);
-
 		$form = $method->getForm();
+		$this->fillRequestVars($msg, $method);
+
 		$this->removeCSRF($form);
-		// $this->removeCaptcha($form);
 
 		try
 		{
@@ -58,7 +56,7 @@ abstract class GWS_CommandForm extends GWS_Command
 			return;
 		}
 
-		$this->selectSubmit($form);
+// 		$this->selectSubmit($form);
 		$button = $method->getAutoButton();
 		$response = $method->executeWithInputs([
 			$button => '1'
@@ -70,7 +68,7 @@ abstract class GWS_CommandForm extends GWS_Command
 	{
 		if ($response->hasError())
 		{
-			echo print_r($response->displayJSON(), 1);
+			echo print_r($response->render(), 1);
 			$msg->replyErrorMessage($msg->cmd(), $response->displayJSON());
 		}
 		else
@@ -98,10 +96,7 @@ abstract class GWS_CommandForm extends GWS_Command
 			$payload .= $this->payloadFromField($gdt);
 		}
 
-		if (@Website::$TOP_RESPONSE)
-		{
-			$payload .= Website::$TOP_RESPONSE->renderCLI() . chr(0);
-		}
+		$payload .= CLI::getTopResponse();
 
 		return $payload;
 	}
@@ -168,20 +163,20 @@ abstract class GWS_CommandForm extends GWS_Command
 		$form->removeFieldNamed('xsrf');
 	}
 
-	protected function selectSubmit(GDT_Form $form)
-	{
-		$this->selectSubmitNum($form, 0);
-	}
+// 	protected function selectSubmit(GDT_Form $form)
+// 	{
+// 		$this->selectSubmitNum($form, 0);
+// 	}
 
-	protected function selectSubmitNum(GDT_Form $form, $num)
-	{
-		$submits = $this->getSubmits($form);
-		if ($submit = @$submits[$num])
-		{
-			$name = $submit->name;
-			$f = $form->formName();
-			$_REQUEST[$f][$name] = $name;
-		}
-	}
+// 	protected function selectSubmitNum(GDT_Form $form, $num)
+// 	{
+// 		$submits = $this->getSubmits($form);
+// 		if ($submit = @$submits[$num])
+// 		{
+// 			$name = $submit->name;
+// 			$f = $form->formName();
+// // 			$_REQUEST[$f][$name] = $name;
+// 		}
+// 	}
 
 }

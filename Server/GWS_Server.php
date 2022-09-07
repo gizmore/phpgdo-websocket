@@ -81,7 +81,7 @@ final class GWS_Server implements MessageComponentInterface
 		# IPC timer
 		if (GDO_IPC === 'db')
 		{
-			# 3 seconds db poll alternative
+			# 3 seconds db poll alternative. Start clean.
 			GDO_Hook::table()->truncate();
 			$this->server->loop->addPeriodicTimer(3.14, [$this, 'ipcdbTimer']);
 		}
@@ -97,6 +97,8 @@ final class GWS_Server implements MessageComponentInterface
 		{
 			throw new GDO_Error('err_invalid_ipc');
 		}
+		$_GET = [];
+		$_POST = [];
 		$this->server->run();
 	}
 	
@@ -181,9 +183,7 @@ final class GWS_Server implements MessageComponentInterface
 			try {
 				$app = Application::$INSTANCE;
 				$app->reset(true);
-				$app->inputs([]);
-				$_GET = [];
-				$_POST = [];
+// 				$app->inputs([]);
 				$_REQUEST = [];
 				$_FILES = [];
 				/**

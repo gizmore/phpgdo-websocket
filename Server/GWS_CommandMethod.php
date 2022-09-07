@@ -1,15 +1,17 @@
 <?php
 namespace GDO\Websocket\Server;
+
 use GDO\Core\Method;
 use GDO\Core\GDT_Response;
+use GDO\Core\Application;
 
 /**
  * Call GDO Method via websockets.
  * Either override fillRequestVars or gdoParameters in your derrived @link Method
  * 
  * @author gizmore
- * @since 5.0
- * @version 6.07
+ * @version 7.0.1
+ * @since 5.0.0
  */
 abstract class GWS_CommandMethod extends GWS_Command
 {
@@ -18,23 +20,23 @@ abstract class GWS_CommandMethod extends GWS_Command
 	 */
 	public abstract function getMethod();
 	
-	public function fillRequestVars(GWS_Message $msg)
+	public function fillRequestVars(GWS_Message $msg, Method $method)
 	{
-		GWS_Form::bindMethod($this->getMethod(), $msg);
+		GWS_Form::bindMethod($method, $msg);
 	}
 	
 	public function execute(GWS_Message $msg)
 	{
 	    parent::execute($msg);
-		$this->fillRequestVars($msg);
 		$method = $this->getMethod();
+		$this->fillRequestVars($msg, $method);
 		$response = $method->executeWithInit();
 		$this->postExecute($msg, $response);
 	}
 	
 	public function postExecute(GWS_Message $msg, GDT_Response $response)
 	{
-		if ($response->isError())
+		if (Application::$INSTANCE->isError())
 		{
 			$msg->replyErrorMessage($msg->cmd(), $response->displayJSON());
 		}

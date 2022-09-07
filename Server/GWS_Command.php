@@ -13,9 +13,6 @@ use GDO\Maps\GDT_Position;
 use GDO\Table\GDT_PageMenu;
 use GDO\Core\GDT_Float;
 use GDO\Core\GDO_Exception;
-use GDO\UI\GDT_Page;
-use GDO\Core\GDT_Object;
-use GDO\Core\GDT_ObjectSelect;
 
 /**
  * GWS_Commands have to register via GWS_Commands::register($code, GWS_Command, $binary=true)

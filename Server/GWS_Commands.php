@@ -3,12 +3,11 @@ namespace GDO\Websocket\Server;
 
 use GDO\User\GDO_User;
 use GDO\Core\Logger;
-use GDO\Session\GDO_Session;
 use GDO\Core\GDO_Error;
 
-require_once 'GWS_Command.php';
-require_once 'GWS_CommandForm.php';
-require_once 'GWS_CommandMethod.php';
+// require_once 'GWS_Command.php';
+// require_once 'GWS_CommandForm.php';
+// require_once 'GWS_CommandMethod.php';
 
 /**
  * Command handler base class.
@@ -76,11 +75,9 @@ class GWS_Commands
 	}
 	
 	/**
-	 * Get command for a message
-	 * @param GWS_Message $message
-	 * @return GWS_Command
+	 * Get command for a message.
 	 */
-	public function command(GWS_Message $message)
+	public function command(GWS_Message $message) : GWS_Command
 	{
 		$cmd = $message->cmd();
 		if (!isset(self::$COMMANDS[$cmd]))
@@ -88,10 +85,10 @@ class GWS_Commands
 			throw new GDO_Error('err_gws_unknown_cmd', [sprintf('0x%04X', $cmd)]);
 		}
 		$command = self::$COMMANDS[$cmd];
-		if ($session = GDO_Session::instance())
-		{
-			$session->setVar('sess_last_url', "ws://" . get_class($command));
-		}
+// 		if ($session = GDO_Session::instance())
+// 		{
+// 			$session->setVar('sess_last_url', "ws://" . get_class($command));
+// 		}
 		Logger::logWebsocket("Executing " . get_class($command));
 		return $command->setMessage($message);
 	}
@@ -101,7 +98,9 @@ class GWS_Commands
 	################
 	public function init() {}
 	public function timer() {}
+	public function login(GDO_User $user) {}
+	public function logout(GDO_User $user) {}
 	public function connect(GDO_User $user) {}
 	public function disconnect(GDO_User $user) {}
-	public function logout(GDO_User $user) {}
+	
 }
