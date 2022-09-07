@@ -10,6 +10,7 @@ use GDO\Language\Trans;
 use GDO\Session\GDO_Session;
 use GDO\Websocket\Module_Websocket;
 use GDO\Core\GDT;
+use GDO\Form\GDT_Form;
 
 # Load config
 require_once 'GDO7.php';
@@ -33,7 +34,7 @@ class GWS_ServerMain extends Application
 }
 $app = GWS_ServerMain::init();
 $app->cli();
-$app->verb('post');
+$app->verb(GDT_Form::POST);
 $app->mode(GDT::RENDER_BINARY, true);
 
 Trans::$ISO = GDO_LANGUAGE;
@@ -44,8 +45,10 @@ Debug::setDieOnError(false);
 Debug::setMailOnError(GDO_ERROR_MAIL);
 Database::init();
 GDO_Session::init(GDO_SESS_NAME, GDO_SESS_DOMAIN, GDO_SESS_TIME, !GDO_SESS_JS, GDO_SESS_HTTPS);
-ModuleLoader::instance()->loadModulesCache();
-// GDO_Session::instance();
+$loader = ModuleLoader::instance();
+$loader->loadModulesCache();
+$loader->initModules();
+Trans::inited();
 define('GDO_CORE_STABLE', true); # all fine? @deprecated
 
 # Create WS

@@ -50,7 +50,8 @@ abstract class GWS_CommandForm extends GWS_Command
 		$this->selectSubmit($form);
 		$this->removeCSRF($form);
 // 		$this->removeCaptcha($form);
-		$response = $method->executeWithInputs([]);
+		$button = $method->getAutoButton();
+		$response = $method->executeWithInputs([$button => '1']);
 		$this->postExecute($msg, $form, $response);
 	}
 	

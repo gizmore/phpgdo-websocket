@@ -18,7 +18,7 @@ final class GWS_Login extends GWS_CommandForm
 	
 	public function replySuccess(GWS_Message $msg, GDT_Form $form, GDT_Response $response)
 	{
-		$user = GDO_Session::instance()->getUser();
+		$user = GDO_Session::user();
 		GDO_User::setCurrent($user);
 		$user->tempSet('sess_id', GDO_Session::instance()->getID());
 // 		$user->recache();
