@@ -39,10 +39,10 @@ class GWS_Commands
 	
 	public static function webHookDB($message)
 	{
-	    if (GDO_CONSOLE_VERBOSE)
-	    {
-	        echo "{$message}\n";
-	    }
+// 	    if (GDO_CONSOLE_VERBOSE)
+// 	    {
+// 	        echo "{$message}\n";
+// 	    }
 		$message = json_decode($message, true);
 		$event = $message['event'];
 		$args = $message['args'];
