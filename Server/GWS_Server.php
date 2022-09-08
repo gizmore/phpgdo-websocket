@@ -207,9 +207,10 @@ final class GWS_Server implements MessageComponentInterface
 	
 	public function onAuthBinary(GWS_Message $message)
 	{
-		if ($message->cmd() !== 0x0001)
+		$cmd = $message->cmd();
+		if ($cmd !== 0x0001)
 		{
-			$message->replyErrorMessage(0x0001, "Wrong authentication command");
+			$message->replyErrorMessage(0x0001, sprintf("Wrong authentication command was sent: %04x", $cmd));
 		}
 		elseif (!($cookie = $message->readString()))
 		{
