@@ -31,8 +31,8 @@ final class GWS_Setting extends GWS_Command
 			return $msg->replyErrorMessage($msg->cmd(), t('err_setting_unchanged'));
 		}
 		
-		$setting->var($var);
-		$value = $setting->getValue();
+// 		$setting->var($var);
+		$value = $setting->toValue($var);
 		if (!$setting->validate($value))
 		{
 			return $msg->replyErrorMessage($msg->cmd(), t('err_setting_validate', [$setting->error]));
