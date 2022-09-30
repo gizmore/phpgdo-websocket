@@ -116,7 +116,7 @@ window.GDO_CONFIG.ws_autoconnect = %s;',
 	    	
 	    	if (GDO_User::current()->hasPermission($this->cfgClientPermission()))
 	    	{
-	    		$navbar->addField(GDT_Link::make()->href($this->href('Exec'))->label('link_ws_exec'));
+	    		$navbar->addField(GDT_Link::make()->href($this->href('Exec'))->text('link_ws_exec'));
 	    	}
 		}
 	}
