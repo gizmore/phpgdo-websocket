@@ -38,7 +38,7 @@ class GWS_ServerMain extends Application
 $app = GWS_ServerMain::init();
 $app->cli();
 $app->verb(GDT_Form::POST);
-$app->mode(GDT::RENDER_BINARY, true);
+$app->modeDetected(GDT::RENDER_BINARY);
 
 Trans::$ISO = GDO_LANGUAGE;
 Logger::init(null, Logger::_ALL&~Logger::BUFFERED); # 1st init as guest
