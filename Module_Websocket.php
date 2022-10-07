@@ -38,8 +38,7 @@ final class Module_Websocket extends GDO_Module
 	##############
 	public int $priority = 45;
 	public function onLoadLanguage() : void { $this->loadLanguage('lang/websocket'); }
-	public function thirdPartyFolders() : array { return ['/gwf4-ratchet/']; }
-	
+	public function thirdPartyFolders() : array { return ['gwf4-ratchet/']; }
 	public function getDependencies() : array
 	{
 		return [
@@ -124,11 +123,6 @@ window.GDO_CONFIG.ws_autoconnect = %s;',
 	#############
 	### Hooks ###
 	#############
-	public function hookIgnoreDocsFiles(GDT_Array $ignore)
-	{
-	    $ignore->data[] = 'GDO/Websocket/gwf4-ratchet/**/*';
-	}
-	
 	public function hookInstallCronjob(GDT_Container $container)
 	{
 		$cron = $this->filePath('bin/cron_start_websocket_server.sh');
