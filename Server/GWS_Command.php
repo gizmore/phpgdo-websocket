@@ -42,7 +42,7 @@ abstract class GWS_Command
 	############
 	public function userToBinary(GDO_User $user)
 	{
-		$fields = $user->gdoColumnsExcept('user_password', 'user_register_ip');
+		$fields = $user->gdoColumnsExcept();
 		return $this->gdoToBinary($user, array_keys($fields));
 	}
 	
