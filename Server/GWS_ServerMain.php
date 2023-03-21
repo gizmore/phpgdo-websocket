@@ -2,16 +2,16 @@
 namespace GDO\Websocket\Server;
 
 use GDO\Core\Application;
-use GDO\Core\Logger;
 use GDO\Core\Debug;
+use GDO\Core\GDT;
+use GDO\Core\Logger;
+use GDO\Core\Method\Stub;
 use GDO\Core\ModuleLoader;
 use GDO\DB\Database;
+use GDO\Form\GDT_Form;
 use GDO\Language\Trans;
 use GDO\Session\GDO_Session;
 use GDO\Websocket\Module_Websocket;
-use GDO\Core\GDT;
-use GDO\Core\Method\Stub;
-use GDO\Form\GDT_Form;
 
 # Load config
 require_once 'GDO7.php';
@@ -32,16 +32,20 @@ $me = Stub::make();
 # Bootstrap
 class GWS_ServerMain extends Application
 {
-	public function isCLI() : bool { return true; }
-	public function isWebsocket() : bool { return true; }
+
+	public function isCLI(): bool { return true; }
+
+	public function isWebsocket(): bool { return true; }
+
 }
+
 $app = GWS_ServerMain::init();
 $app->cli();
 $app->verb(GDT_Form::POST);
 $app->modeDetected(GDT::RENDER_BINARY);
 
 Trans::$ISO = GDO_LANGUAGE;
-Logger::init(null, Logger::_ALL&~Logger::BUFFERED); # 1st init as guest
+Logger::init(null, Logger::_ALL & ~Logger::BUFFERED); # 1st init as guest
 Debug::init();
 Debug::enableErrorHandler();
 Debug::setDieOnError(false);

@@ -1,12 +1,12 @@
 # gdo6 websocket via nginx proxy.
 
 ## Install acme.sh
+
 Install acme.sh for LetsEncrypt
 Create a certificate with acme.sh
 
     acme.sh --issue --domain foo.com --apache --writable /home/user/www/gdo6
-    
-    
+
 ### Create PEM formats
 
 not required anymore?
@@ -16,8 +16,7 @@ not required anymore?
     # Create chain PEM
     openssl pkcs12 -in gizmore.org.pfx -out gizmore.org.public.pem -nodes -nokeys
     openssl pkcs12 -in gizmore.org.pfx -out gizmore.org.private.pem -nodes
-    
-    
+
 ## Install nginx
 
 Add a TLS proxy site.

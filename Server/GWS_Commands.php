@@ -1,9 +1,9 @@
 <?php
 namespace GDO\Websocket\Server;
 
-use GDO\User\GDO_User;
-use GDO\Core\Logger;
 use GDO\Core\GDO_Error;
+use GDO\Core\Logger;
+use GDO\User\GDO_User;
 
 // require_once 'GWS_Command.php';
 // require_once 'GWS_CommandForm.php';
@@ -12,22 +12,25 @@ use GDO\Core\GDO_Error;
 /**
  * Command handler base class.
  * Override this and set in websocket module config
+ *
  * @author gizmore
  */
 class GWS_Commands
 {
-	const MID_LENGTH = 7; # Sync Message ID length
-	const DEFAULT_MID = '0000000'; # Sync Message ID
-	
+
+	public const MID_LENGTH = 7; # Sync Message ID length
+	public const DEFAULT_MID = '0000000'; # Sync Message ID
+
 	################
 	### Commands ###
 	################
 	/**
-	 * 
+	 *
 	 * @var GWS_Command[]
 	 */
-	public static $COMMANDS = array();
-	public static function register($code, GWS_Command $command, $binary=true)
+	public static $COMMANDS = [];
+
+	public static function register($code, GWS_Command $command, $binary = true)
 	{
 		if (isset(self::$COMMANDS[$code]))
 		{
@@ -35,7 +38,7 @@ class GWS_Commands
 		}
 		self::$COMMANDS[$code] = $command;
 	}
-	
+
 	public static function webHookDB($message)
 	{
 // 	    if (GDO_CONSOLE_VERBOSE)
@@ -52,7 +55,7 @@ class GWS_Commands
 		}
 		return self::webHook($param);
 	}
-	
+
 	public static function webHook(array $hookData)
 	{
 		$event = array_shift($hookData);
@@ -73,11 +76,11 @@ class GWS_Commands
 	{
 		return $this->command($message)->execute($message);
 	}
-	
+
 	/**
 	 * Get command for a message.
 	 */
-	public function command(GWS_Message $message) : GWS_Command
+	public function command(GWS_Message $message): GWS_Command
 	{
 		$cmd = $message->cmd();
 		if (!isset(self::$COMMANDS[$cmd]))
@@ -89,7 +92,7 @@ class GWS_Commands
 // 		{
 // 			$session->setVar('sess_last_url', "ws://" . get_class($command));
 // 		}
-		Logger::logWebsocket("Executing " . get_class($command));
+		Logger::logWebsocket('Executing ' . get_class($command));
 		return $command->setMessage($message);
 	}
 
@@ -97,10 +100,15 @@ class GWS_Commands
 	### Override ###
 	################
 	public function init() {}
+
 	public function timer() {}
+
 	public function login(GDO_User $user) {}
+
 	public function logout(GDO_User $user) {}
+
 	public function connect(GDO_User $user) {}
+
 	public function disconnect(GDO_User $user) {}
-	
+
 }

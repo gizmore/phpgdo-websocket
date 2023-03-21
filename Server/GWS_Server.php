@@ -1,44 +1,45 @@
 <?php
 namespace GDO\Websocket\Server;
 
+use Exception;
+use GDO\Core\Application;
 use GDO\Core\Debug;
+use GDO\Core\GDO_Error;
+use GDO\Core\GDO_Hook;
 use GDO\Core\Logger;
 use GDO\Core\Module_Core;
-use GDO\Util\Filewalker;
+use GDO\Core\ModuleLoader;
+use GDO\Core\WithInstance;
 use GDO\Net\GDT_IP;
 use GDO\Session\GDO_Session;
 use GDO\User\GDO_User;
+use GDO\Util\Filewalker;
 use GDO\Websocket\Module_Websocket;
-use Ratchet\MessageComponentInterface;
 use Ratchet\ConnectionInterface;
-use Ratchet\Server\IoServer;
 use Ratchet\Http\HttpServer;
+use Ratchet\MessageComponentInterface;
+use Ratchet\Server\IoServer;
 use Ratchet\WebSocket\WsServer;
-use Exception;
-use GDO\Core\ModuleLoader;
-use GDO\Core\WithInstance;
-use GDO\Core\GDO_Hook;
-use GDO\Core\GDO;
-use GDO\Core\Application;
-use GDO\Core\GDO_Error;
+use Throwable;
 
 require_once 'GWS_Message.php';
 require_once 'GDO/Websocket/gwf4-ratchet/autoload.php';
 
 final class GWS_Server implements MessageComponentInterface
 {
+
 	use WithInstance;
-	
+
 	/**
 	 * @var GWS_Commands
 	 */
 	private $handler;
 	private $allowGuests;
-	
+
 	private $gws;
 	private $server;
 	private $ipc;
-	
+
 	public function __construct()
 	{
 		self::$INSTANCE = $this;
@@ -63,19 +64,19 @@ final class GWS_Server implements MessageComponentInterface
 			throw new GDO_Error('err_invalid_ipc');
 		}
 	}
-	
+
 	public function initIPC()
 	{
-		$key = ftok(GDO_PATH.'temp/ipc.socket', 'G');
+		$key = ftok(GDO_PATH . 'temp/ipc.socket', 'G');
 		$this->ipc = msg_get_queue($key);
 	}
-	
-	public function mainloop($timerInterval=0)
+
+	public function mainloop($timerInterval = 0)
 	{
 		Logger::logMessage("GWS_Server::mainloop($timerInterval)");
 		if ($timerInterval > 0)
 		{
-			$this->server->loop->addPeriodicTimer($timerInterval/1000.0, [$this->handler, 'timer']);
+			$this->server->loop->addPeriodicTimer($timerInterval / 1000.0, [$this->handler, 'timer']);
 		}
 
 		# IPC timer
@@ -101,44 +102,47 @@ final class GWS_Server implements MessageComponentInterface
 		$_POST = [];
 		$this->server->run();
 	}
-	
+
 	/**
 	 * Poll a message and delete it afterwards.
 	 */
 	public function ipcdbTimer()
 	{
-	    Application::updateTime();
-	    if ($message = GDO_Hook::table()->select()->first()->exec()->fetchRow())
+		Application::updateTime();
+		if ($message = GDO_Hook::table()->select()->first()->exec()->fetchRow())
 		{
 			try
 			{
-			    GWS_Commands::webHookDB($message[1]);
+				GWS_Commands::webHookDB($message[1]);
 			}
-			catch (\Throwable $ex)
+			catch (Throwable $ex)
 			{
 				Logger::logException($ex);
 			}
 			# Delete this row
-			GDO_Hook::table()->deleteWhere("hook_id=".$message[0]);
+			GDO_Hook::table()->deleteWhere('hook_id=' . $message[0]);
 			# Recall immediately
 			$this->ipcdbTimer();
 		}
 	}
-	
+
 	public function ipcTimer()
 	{
-	    Application::updateTime();
-	    $message = null;
-	    $messageType = 0;
-	    $error = 0;
+		Application::updateTime();
+		$message = null;
+		$messageType = 0;
+		$error = 0;
 		if (msg_receive($this->ipc, 0x612, $messageType, 65535, $message, true, MSG_IPC_NOWAIT, $error))
 		{
 			if ($message)
 			{
-				try {
-					Logger::logWebsocket("calling webHook: ".json_encode($message));
+				try
+				{
+					Logger::logWebsocket('calling webHook: ' . json_encode($message));
 					GWS_Commands::webHook($message);
-				} catch (\Exception $ex) {
+				}
+				catch (Exception $ex)
+				{
 					Logger::logException($ex);
 				}
 				$this->ipcTimer();
@@ -152,20 +156,20 @@ final class GWS_Server implements MessageComponentInterface
 			$this->initIPC();
 		}
 	}
-	
+
 	###############
 	### Ratchet ###
 	###############
 	public function onOpen(ConnectionInterface $conn)
 	{
-		Logger::logCron(sprintf("GWS_Server::onOpen()"));
+		Logger::logCron(sprintf('GWS_Server::onOpen()'));
 	}
 
 	public function onMessage(ConnectionInterface $from, $data)
 	{
 		die('NON BINARY MESSAGE NOT SUPPORTED ANYMORE');
 	}
-	
+
 	public function onBinaryMessage(ConnectionInterface $from, $data)
 	{
 		printf("%s >> BIN\n", $from->user() ? $from->user()->renderUserName() : '???');
@@ -180,7 +184,8 @@ final class GWS_Server implements MessageComponentInterface
 		}
 		else
 		{
-			try {
+			try
+			{
 				$app = Application::$INSTANCE;
 				$app->reset(true);
 // 				$app->inputs([]);
@@ -193,36 +198,36 @@ final class GWS_Server implements MessageComponentInterface
 				GDO_User::setCurrent($user);
 				$sessid = $user->tempGet('sess_id');
 				GDO_Session::reloadID($sessid);
-				Logger::init($user->renderUserName(), Logger::_ALL&~Logger::BUFFERED);
+				Logger::init($user->renderUserName(), Logger::_ALL & ~Logger::BUFFERED);
 				$this->handler->executeMessage($message);
 				GDO_Session::commit();
 			}
-			catch (\Throwable $ex)
+			catch (Throwable $ex)
 			{
 				Logger::logWebsocket(Debug::backtraceException($ex, false));
 				$message->replyErrorMessage($message->cmd(), $ex->getMessage());
 			}
 		}
 	}
-	
+
 	public function onAuthBinary(GWS_Message $message)
 	{
 		$cmd = $message->cmd();
 		if ($cmd !== 0x0001)
 		{
-			$message->replyErrorMessage(0x0001, sprintf("Wrong authentication command was sent: %04x", $cmd));
+			$message->replyErrorMessage(0x0001, sprintf('Wrong authentication command was sent: %04x', $cmd));
 		}
 		elseif (!($cookie = $message->readString()))
 		{
-			$message->replyErrorMessage(0x0002, "No cookie was sent");
+			$message->replyErrorMessage(0x0002, 'No cookie was sent');
 		}
 		elseif (!GDO_Session::reloadCookie($cookie))
 		{
-			$message->replyErrorMessage(0x0003, "Could not load session");
+			$message->replyErrorMessage(0x0003, 'Could not load session');
 		}
 		elseif (!($user = GDO_User::current()))
 		{
-			$message->replyErrorMessage(0x0004, "Cannot load user for session");
+			$message->replyErrorMessage(0x0004, 'Cannot load user for session');
 		}
 		else
 		{
@@ -235,10 +240,10 @@ final class GWS_Server implements MessageComponentInterface
 			GWS_Global::addUser($user, $conn);
 		}
 	}
-	
+
 	public function onClose(ConnectionInterface $conn)
 	{
-		Logger::logCron(sprintf("GWS_Server::onClose()"));
+		Logger::logCron(sprintf('GWS_Server::onClose()'));
 		if ($user = $conn->user())
 		{
 			$this->handler->disconnect($user);
@@ -246,17 +251,17 @@ final class GWS_Server implements MessageComponentInterface
 			GWS_Global::removeUser($user);
 		}
 	}
-	
-	public function onError(ConnectionInterface $conn, \Exception $e)
+
+	public function onError(ConnectionInterface $conn, Exception $e)
 	{
-		Logger::logCron(sprintf("GWS_Server::onError()"));
+		Logger::logCron(sprintf('GWS_Server::onError()'));
 	}
-	
+
 	public function onLogout(GDO_User $user)
 	{
 		$this->handler->logout($user);
 	}
-	
+
 	############
 	### Init ###
 	############
@@ -274,26 +279,13 @@ final class GWS_Server implements MessageComponentInterface
 		$this->registerCommands();
 		return true;
 	}
-	
-	private function registerCommands()
-	{
-		foreach (ModuleLoader::instance()->getModules() as $module)
-		{
-			Filewalker::traverse($module->filePath('Websocket'), null, [$this, 'registerModuleCommands']);
-		}
-	}
-	
-	public function registerModuleCommands($entry, $path)
-	{
-		require_once $path;
-	}
-	
+
 	private function socketOptions()
 	{
 // 		$pemCert = trim($this->gws->cfgWebsocketCert());
 // 		if (empty($pemCert))
 		{
-			return array();
+			return [];
 		}
 // 		else
 // 		{
@@ -304,12 +296,26 @@ final class GWS_Server implements MessageComponentInterface
 // 			);
 // 		}
 	}
-	
+
+	private function registerCommands()
+	{
+		foreach (ModuleLoader::instance()->getModules() as $module)
+		{
+			Filewalker::traverse($module->filePath('Websocket'), null, [$this, 'registerModuleCommands']);
+		}
+	}
+
+	public function registerModuleCommands($entry, $path)
+	{
+		require_once $path;
+	}
+
 	/**
-	 * @return \GDO\Websocket\Server\GWS_Commands
+	 * @return GWS_Commands
 	 */
 	public function getHandler()
 	{
 		return $this->handler;
 	}
+
 }

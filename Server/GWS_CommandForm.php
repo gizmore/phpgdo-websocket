@@ -1,38 +1,28 @@
 <?php
 namespace GDO\Websocket\Server;
 
-use GDO\Form\GDT_Form;
-use GDO\Form\GDT_Submit;
+use GDO\CLI\CLI;
+use GDO\Core\GDO_Exception;
+use GDO\Core\GDT;
+use GDO\Core\GDT_Int;
+use GDO\Core\GDT_JSON;
 use GDO\Core\GDT_Response;
 use GDO\Core\GDT_String;
-use GDO\Core\GDT_Int;
-use GDO\Core\GDT;
-use GDO\Core\GDO_Exception;
 use GDO\Core\Method;
-use GDO\UI\GDT_Success;
+use GDO\Form\GDT_Form;
+use GDO\Form\GDT_Submit;
 use GDO\Session\GDO_Session;
-use GDO\Core\GDT_JSON;
-use GDO\CLI\CLI;
+use GDO\UI\GDT_Success;
 
 /**
  * Call MethodForm via websockets.
  *
- * @author gizmore
  * @version 6.10.1
  * @since 5.0
+ * @author gizmore
  */
 abstract class GWS_CommandForm extends GWS_Command
 {
-
-	/**
-	 * @return Method
-	 */
-	public abstract function getMethod();
-
-	public function fillRequestVars(GWS_Message $msg, Method $method)
-	{
-		
-	}
 
 	public function execute(GWS_Message $msg)
 	{
@@ -50,8 +40,8 @@ abstract class GWS_CommandForm extends GWS_Command
 		}
 		catch (GDO_Exception $ex)
 		{
-			$msg->replyErrorMessage($msg->cmd(), t("err_bind_form", [
-				$ex->getMessage()
+			$msg->replyErrorMessage($msg->cmd(), t('err_bind_form', [
+				$ex->getMessage(),
 			]));
 			return;
 		}
@@ -59,9 +49,21 @@ abstract class GWS_CommandForm extends GWS_Command
 // 		$this->selectSubmit($form);
 		$button = $method->getAutoButton();
 		$response = $method->executeWithInputs([
-			$button => '1'
+			$button => '1',
 		]);
 		$this->postExecute($msg, $form, $response);
+	}
+
+	/**
+	 * @return Method
+	 */
+	abstract public function getMethod();
+
+	public function fillRequestVars(GWS_Message $msg, Method $method) {}
+
+	protected function removeCSRF(GDT_Form $form)
+	{
+		$form->removeFieldNamed('xsrf');
 	}
 
 	public function postExecute(GWS_Message $msg, GDT_Form $form, GDT_Response $response)
@@ -77,10 +79,6 @@ abstract class GWS_CommandForm extends GWS_Command
 			$this->replySuccess($msg, $form, $response);
 			$this->afterReplySuccess($msg);
 		}
-	}
-
-	public function afterReplySuccess(GWS_Message $msg)
-	{
 	}
 
 	public function replySuccess(GWS_Message $msg, GDT_Form $form, GDT_Response $response)
@@ -135,9 +133,12 @@ abstract class GWS_CommandForm extends GWS_Command
 		return $payload;
 	}
 
+	public function afterReplySuccess(GWS_Message $msg) {}
+
 	/**
 	 *
 	 * @param GDT_Form $form
+	 *
 	 * @return GDT_Submit[]
 	 */
 	protected function getSubmits(GDT_Form $form)
@@ -156,11 +157,6 @@ abstract class GWS_CommandForm extends GWS_Command
 	protected function removeCaptcha(GDT_Form $form)
 	{
 		$form->removeFieldNamed('captcha');
-	}
-
-	protected function removeCSRF(GDT_Form $form)
-	{
-		$form->removeFieldNamed('xsrf');
 	}
 
 // 	protected function selectSubmit(GDT_Form $form)

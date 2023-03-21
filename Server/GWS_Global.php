@@ -6,12 +6,13 @@ use GDO\User\GDO_User;
 
 final class GWS_Global
 {
+
 	/**
 	 * @var GDO_User[]
 	 */
-	public static $USERS = array();
-	public static $CONNECTIONS = array();
-	
+	public static $USERS = [];
+	public static $CONNECTIONS = [];
+
 	##################
 	### GDO_User cache ###
 	##################
@@ -32,71 +33,24 @@ final class GWS_Global
 			GWS_Server::instance()->getHandler()->connect($user);
 		}
 	}
-	
-	public static function removeUser(GDO_User $user, $reason='NO_REASON')
+
+	public static function disconnect(GDO_User $user, $reason = 'no_reason')
 	{
-		$key = $user->getID();
-		if (isset(self::$USERS[$key]))
+		if ($conn = @self::$CONNECTIONS[$user->getID()])
 		{
-			unset(self::$USERS[$key]);
-			unset(self::$CONNECTIONS[$key]);
-// 			GWS_Global::disconnect($user, $reason);
+			GWS_Server::instance()->getHandler()->disconnect($user);
+			$conn->send('CLOSE:' . $reason);
+			unset(self::$USERS[$user->getID()]);
+			unset(self::$CONNECTIONS[$user->getID()]);
+			$conn->close();
 		}
-	}
-	
-	/**
-	 * @param int $id
-	 * @return GDO_User
-	 */
-	public static function getUserByID($id)
-	{
-		return @self::$USERS[$id];
-	}
-	
-	public static function getOrLoadUserById($id)
-	{
-		if ($user = self::getUserByID($id))
-		{
-			return $user;
-		}
-		return self::loadUserById($id);
-	}
-	
-	public static function loadUserById($id)
-	{
-		if ($user = GDO_User::getById($id))
-		{
-			self::$USERS[$id] = $user;
-		}
-		return $user;
-	}
-	
-	public static function broadcast($payload)
-	{
-		Logger::logWebsocket(sprintf("!BROADCAST! << %s", $payload));
-		foreach (self::$USERS as $user)
-		{
-			self::send($user, $payload);
-		}
-		return true;
 	}
 
-	public static function broadcastBinary($payload)
-	{
-		Logger::logWebsocket(sprintf("Broadcast to %d users.", count(self::$USERS)));
-		GWS_Message::hexdump($payload);
-		foreach (self::$USERS as $user)
-		{
-			self::sendBinary($user, $payload);
-		}
-		return true;
-	}
-	
 	public static function send(GDO_User $user, $payload)
 	{
 		if ($conn = @self::$CONNECTIONS[$user->getID()])
 		{
-			Logger::logWebsocket(sprintf("%s << %s", $user->renderUserName(), $payload));
+			Logger::logWebsocket(sprintf('%s << %s', $user->renderUserName(), $payload));
 			$conn->send($payload);
 			return true;
 		}
@@ -106,12 +60,75 @@ final class GWS_Global
 			return false;
 		}
 	}
-	
+
+	public static function removeUser(GDO_User $user, $reason = 'NO_REASON')
+	{
+		$key = $user->getID();
+		if (isset(self::$USERS[$key]))
+		{
+			unset(self::$USERS[$key]);
+			unset(self::$CONNECTIONS[$key]);
+// 			GWS_Global::disconnect($user, $reason);
+		}
+	}
+
+	public static function getOrLoadUserById($id)
+	{
+		if ($user = self::getUserByID($id))
+		{
+			return $user;
+		}
+		return self::loadUserById($id);
+	}
+
+	/**
+	 * @param int $id
+	 *
+	 * @return GDO_User
+	 */
+	public static function getUserByID($id)
+	{
+		return @self::$USERS[$id];
+	}
+
+	public static function loadUserById($id)
+	{
+		if ($user = GDO_User::getById($id))
+		{
+			self::$USERS[$id] = $user;
+		}
+		return $user;
+	}
+
+	public static function broadcast($payload)
+	{
+		Logger::logWebsocket(sprintf('!BROADCAST! << %s', $payload));
+		foreach (self::$USERS as $user)
+		{
+			self::send($user, $payload);
+		}
+		return true;
+	}
+
+	public static function broadcastBinary($payload)
+	{
+		Logger::logWebsocket(sprintf('Broadcast to %d users.', count(self::$USERS)));
+		GWS_Message::hexdump($payload);
+		foreach (self::$USERS as $user)
+		{
+			self::sendBinary($user, $payload);
+		}
+		return true;
+	}
+	##################
+	### Connection ###
+	##################
+
 	public static function sendBinary(GDO_User $user, $payload)
 	{
 		if ($conn = @self::$CONNECTIONS[$user->getID()])
 		{
-			Logger::logWebsocket(sprintf("%s << BIN", $user->renderUserName()));
+			Logger::logWebsocket(sprintf('%s << BIN', $user->renderUserName()));
 			GWS_Message::hexdump($payload);
 			$conn->sendBinary($payload);
 			return true;
@@ -120,20 +137,6 @@ final class GWS_Global
 		{
 			Logger::logWebsocket(sprintf('GDO_User %s not connected.', $user->renderUserName()));
 			return false;
-		}
-	}
-	##################
-	### Connection ###
-	##################
-	public static function disconnect(GDO_User $user, $reason="no_reason")
-	{
-		if ($conn = @self::$CONNECTIONS[$user->getID()])
-		{
-			GWS_Server::instance()->getHandler()->disconnect($user);
-			$conn->send("CLOSE:".$reason);
-			unset(self::$USERS[$user->getID()]);
-			unset(self::$CONNECTIONS[$user->getID()]);
-			$conn->close();
 		}
 	}
 
