@@ -187,7 +187,7 @@ final class GWS_Server implements MessageComponentInterface
 			try
 			{
 				$app = Application::$INSTANCE;
-				$app->reset(true);
+				$app->reset();
 // 				$app->inputs([]);
 				$_REQUEST = [];
 				$_FILES = [];

@@ -1,6 +1,7 @@
 <?php
 namespace GDO\Websocket\Method;
 
+use GDO\Core\GDT;
 use GDO\Core\GDT_JSON;
 use GDO\Core\GDT_UInt;
 use GDO\Core\MethodAjax;
@@ -30,7 +31,7 @@ final class GetSecret extends MethodAjax
 		];
 	}
 
-	public function execute()
+	public function execute(): GDT
 	{
 		$json = [
 			'user' => Module_Core::instance()->gdoUserJSON(),
