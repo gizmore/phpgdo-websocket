@@ -198,7 +198,7 @@ final class GWS_Server implements MessageComponentInterface
 				GDO_User::setCurrent($user);
 				$sessid = $user->tempGet('sess_id');
 				GDO_Session::reloadID($sessid);
-				Logger::init($user->renderUserName(), Logger::_ALL & ~Logger::BUFFERED);
+				Logger::init($user->renderUserName(), Logger::ALL & ~Logger::BUFFERED);
 				$this->handler->executeMessage($message);
 				GDO_Session::commit();
 			}

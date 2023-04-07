@@ -11,6 +11,7 @@ use GDO\DB\Database;
 use GDO\Form\GDT_Form;
 use GDO\Language\Trans;
 use GDO\Session\GDO_Session;
+use GDO\Websocket\Method\Run;
 use GDO\Websocket\Module_Websocket;
 
 # Load config
@@ -45,7 +46,7 @@ $app->verb(GDT_Form::POST);
 $app->modeDetected(GDT::RENDER_BINARY);
 
 Trans::$ISO = GDO_LANGUAGE;
-Logger::init(null, Logger::_ALL & ~Logger::BUFFERED); # 1st init as guest
+Logger::init(null, Logger::ALL & ~Logger::BUFFERED); # 1st init as guest
 Debug::init();
 Debug::enableErrorHandler();
 Debug::setDieOnError(false);
@@ -59,17 +60,4 @@ Trans::inited();
 define('GDO_CORE_STABLE', true); # all fine? @deprecated
 
 # Create WS
-$gws = Module_Websocket::instance();
-
-$processorPath = $gws->cfgWebsocketProcessorPath();
-require $processorPath;
-
-$processor = $gws->processorClass();
-
-$server = new GWS_Server();
-if (GDO_IPC === 'ipc')
-{
-	$server->ipcTimer();
-}
-$server->initGWSServer(new $processor(), $gws);
-$server->mainloop($gws->cfgTimer());
+Run::make()->run();
