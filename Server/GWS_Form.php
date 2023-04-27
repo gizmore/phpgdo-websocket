@@ -33,66 +33,79 @@ final class GWS_Form
 
 	public static function bindMethod(Method $method, GWS_Message $msg)
 	{
-		return self::bindFields($method->gdoParameters(), $msg);
+		return self::bindFields($method, $msg);
 	}
 
-	/**
-	 * @param array $fields
-	 * @param GWS_Message $msg
-	 */
-	public static function bindFields(array $fields, GWS_Message $msg)
+	public static function bindFields(Method $method, GWS_Message $msg)
 	{
+		$fields = $method->gdoParameterCache();
+		$inputs = [];
 		foreach ($fields as $gdt)
 		{
-			self::bind($gdt, $msg);
+			self::bind($gdt, $msg, $inputs);
 		}
+		$method->inputs($inputs);
 	}
 
-	private static function bind(GDT $gdt, GWS_Message $msg)
+	private static function bind(GDT $gdt, GWS_Message $msg, array &$inputs)
 	{
 		try
 		{
 			if ($gdt->isSerializable())
 			{
-				Logger::logWebsocket(sprintf('Reading %s as a %s.', $gdt->name, get_class($gdt)));
+				Logger::logWebsocket(sprintf('Reading %s as a %s.', $gdt->getName(), get_class($gdt)));
 
 				if ($gdt instanceof GDT_Checkbox)
 				{
-					$gdt->value($msg->read8() > 0);
+					$var = $msg->read8();
+					$inputs[$gdt->getName()] = (string) $var;
+//					$gdt->value($value > 0);
 				}
 				elseif ($gdt instanceof GDT_String)
 				{
-					$gdt->var($msg->readString());
+					$var = $msg->readString();
+					$inputs[$gdt->getName()] = (string)$var;
+//					$gdt->addInputValue($msg->readString());
 				}
 				elseif (
 					($gdt instanceof GDT_Decimal) ||
 					($gdt instanceof GDT_Float)
 				)
 				{
-					$gdt->value($msg->readFloat());
+					$value = $msg->readFloat();
+					$inputs[$gdt->getName()] = (string) $value;
+//					$gdt->addInputValue($msg->readFloat());
 				}
 				elseif ($gdt instanceof GDT_Object)
 				{
-					$gdt->var($msg->read32u());
+					$value = $msg->read32u();
+					$inputs[$gdt->getName()] = (string)$value;
+//					$gdt->addInputValue($msg->read32u());
 				}
 				elseif ($gdt instanceof GDT_Int)
 				{
-					$gdt->value($msg->readN($gdt->bytes, !$gdt->unsigned));
+					$value = $msg->readN($gdt->bytes, !$gdt->unsigned);
+					$inputs[$gdt->getName()] = (string)$value;
+//					$gdt->addInputValue();
 				}
 				elseif ($gdt instanceof GDT_Enum)
 				{
-					$gdt->var($gdt->enumForId($msg->read16u()));
+					$value = $gdt->enumForId($msg->read16u());
+					$inputs[$gdt->getName()] = (string)$value;
+//					$gdt->addInputValue();
 				}
 				elseif ($gdt instanceof GDT_Timestamp)
 				{
 					$ts = $msg->read32u();
 					if ($ts)
 					{
-						$gdt->value($ts);
+						$inputs[$gdt->getName()] = $ts;
+//						$gdt->addInputValue($ts);
 					}
 					else
 					{
-						$gdt->var(null);
+						$inputs[$gdt->getName()] = null;
+//						$gdt->addInputValue(null);
 					}
 				}
 				Logger::logWebsocket(sprintf('Reading %s as a %s with var %s.', $gdt->name, get_class($gdt), $gdt->var));
@@ -107,13 +120,13 @@ final class GWS_Form
 
 	public static function bindMethodForm(MethodForm $method, GWS_Message $msg)
 	{
-		return self::bindForm($method->getForm(), $msg);
+		return self::bindForm($method, $msg);
 	}
 
-	public static function bindForm(GDT_Form $form, GWS_Message $msg)
+	public static function bindForm(Method $method, GWS_Message $msg)
 	{
-		self::bindFields($form->getAllFields(), $msg);
-		return $form;
+		self::bindFields($method, $msg);
+		return $method->getForm();
 	}
 
 }

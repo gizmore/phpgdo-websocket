@@ -49,6 +49,7 @@ final class Run extends MethodCLI
 
 		$processor = $gws->processorClass();
 
+
 		$server = new GWS_Server();
 		if (GDO_IPC === 'ipc')
 		{

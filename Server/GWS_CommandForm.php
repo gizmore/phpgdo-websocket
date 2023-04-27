@@ -47,10 +47,12 @@ abstract class GWS_CommandForm extends GWS_Command
 		}
 
 // 		$this->selectSubmit($form);
-		$button = $method->getAutoButton();
-		$response = $method->executeWithInputs([
-			$button => '1',
-		]);
+		$inputs = $method->getInputs();
+		if ($button = $method->getAutoButton())
+		{
+			$inputs[$button] = '1';
+		}
+		$response = $method->executeWithInputs($inputs);
 		$this->postExecute($msg, $form, $response);
 	}
 
@@ -71,7 +73,7 @@ abstract class GWS_CommandForm extends GWS_Command
 		if ($response->hasError())
 		{
 			echo print_r($response->render(), 1);
-			$msg->replyErrorMessage($msg->cmd(), $response->displayJSON());
+			$msg->replyErrorMessage($msg->cmd(), $response->renderJSON());
 		}
 		else
 		{

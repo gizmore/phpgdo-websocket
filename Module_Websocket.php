@@ -123,7 +123,8 @@ window.GDO_CONFIG.ws_autoconnect = %s;',
 	{
 		$path = $this->cfgWebsocketProcessorPath();
 		$path = str_replace('\\', '/', $path);
-		$path = Strings::substrFrom($path, GDO_PATH);
+		$gdo = str_replace('\\', '/', GDO_PATH);
+		$path = Strings::substrFrom($path, $gdo);
 		$path = str_replace('/', '\\', $path);
 		return Strings::substrTo($path, '.');
 	}

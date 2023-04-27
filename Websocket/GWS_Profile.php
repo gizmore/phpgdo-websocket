@@ -1,6 +1,7 @@
 <?php
 namespace GDO\Websocket\Websocket;
 
+use GDO\Core\GDT;
 use GDO\Friends\GDO_Friendship;
 use GDO\User\GDO_Profile;
 use GDO\User\GDO_User;
@@ -28,18 +29,21 @@ final class GWS_Profile extends GWS_Command
 		$me = $msg->user(); # own user
 		$user = GDO_User::findById($msg->read32u()); # target user
 
-		/** @var $globalACL GDT_ACLRelation * */
-		$globalACL = $user->setting('User', 'profile_visibility');
-		$reason = '';
-		$globalACL->hasAccess($me, $user, $reason);
+//		/** @var $globalACL GDT_ACLRelation * */
+//		$globalACL = $user->setting('User', 'profile_visibility');
+//		$reason = '';
+//		$globalACL->hasAccess($me, $user, $reason);
 
 		$method = Profile::make()->inputs(['for' => $user->renderUserName()]);
-		$card = $method->getCard();
+//		$card = $method->getCard();
 		$profile = GDO_Profile::blank(); # The profile GDO/DTO
 // 		$profile->setVar($globalACL->name, $globalACL->getVar());
+		$profile = GDO_Profile::forUser($user);
+		$card = $method->executeFor($profile);
+//		$card = Profile::make()->getCard($profile);
 
-		foreach ($card->getAllFields() as $gdt)
-		{
+//		foreach ($card->getAllFields() as $gdt)
+//		{
 // 			$settings = $module->getSettingsCache();
 // 			foreach ($settings as $gdt)
 // 			{
@@ -60,11 +64,11 @@ final class GWS_Profile extends GWS_Command
 // 					$profile->setVar($gdt->name, $module->userSettingVar($user, $gdt->name));
 // 				}
 // 			}
-		}
+//		}
 
-		$payload = $msg->wr32($user->getID());
-		$payload .= $msg->wr8(GDO_Friendship::areRelated($me, $user) ? 1 : 0);
-		$payload .= $this->gdoToBinary($profile);
+		$payload = $msg::wr32($user->getID());
+		$payload .= $msg::wr8(GDO_Friendship::areRelated($me, $user) ? 1 : 0);
+		$payload .= $profile->renderMode(GDT::RENDER_BINARY);
 		return $msg->replyBinary($msg->cmd(), $payload);
 	}
 

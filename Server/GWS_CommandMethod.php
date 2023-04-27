@@ -38,9 +38,9 @@ abstract class GWS_CommandMethod extends GWS_Command
 
 	public function postExecute(GWS_Message $msg, GDT_Response $response)
 	{
-		if (Application::$INSTANCE->isError())
+		if (Application::isError())
 		{
-			$msg->replyErrorMessage($msg->cmd(), $response->displayJSON());
+			$msg->replyErrorMessage($msg->cmd(), $response->renderJSON());
 		}
 		else
 		{

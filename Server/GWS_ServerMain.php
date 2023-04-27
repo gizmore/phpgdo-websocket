@@ -1,6 +1,7 @@
 <?php
 namespace GDO\Websocket\Server;
 
+use GDO\CLI\CLI;
 use GDO\Core\Application;
 use GDO\Core\Debug;
 use GDO\Core\GDT;
@@ -15,8 +16,10 @@ use GDO\Websocket\Method\Run;
 use GDO\Websocket\Module_Websocket;
 
 # Load config
-require_once 'GDO7.php';
 require_once 'protected/config.php'; # <-- You might need to adjust this path.
+require_once 'GDO7.php';
+
+CLI::init();
 
 # Autoloader for ratchet
 require_once 'GDO/Websocket/gwf4-ratchet/autoload.php';
