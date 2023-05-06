@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace GDO\Websocket\Server;
 
 use GDO\Core\GDO;
@@ -30,10 +31,7 @@ abstract class GWS_Command
 		return $this;
 	}
 
-	/**
-	 * @return GDO_User
-	 */
-	public function user() { return $this->message->user(); }
+	public function user(): GDO_User { return $this->message->user(); }
 
 	public function message() { return $this->message; }
 
@@ -45,13 +43,18 @@ abstract class GWS_Command
 	############
 	### Util ###
 	############
-	public function userToBinary(GDO_User $user)
+	/**
+	 * @throws GDO_Exception
+	 */
+	public function userToBinary(GDO_User $user): string
 	{
-		$fields = $user->gdoColumnsExcept();
-		return $this->gdoToBinary($user, array_keys($fields));
+		return $this->gdoToBinary($user);
 	}
 
-	public function gdoToBinary(GDO $gdo, array $fields = null)
+	/**
+	 * @throws GDO_Exception
+	 */
+	public function gdoToBinary(GDO $gdo, array $fields = null): string
 	{
 		$fields = $fields ? $gdo->getGDOColumns($fields) : $gdo->gdoColumnsCache();
 		$payload = '';
@@ -70,16 +73,10 @@ abstract class GWS_Command
 				$payload .= GWS_Message::wrF(floatval($field->getLat()));
 				$payload .= GWS_Message::wrF(floatval($field->getLng()));
 			}
-// 			elseif ($field instanceof GDT_ObjectSelect)
-// 			{
-// 				echo "Writing {$field->name} as object int.\n";
-// 				$payload .= GWS_Message::wrN($field->bytes, $gdo->gdoVar($field->name));
-// 			}
 			elseif ($field instanceof GDT_Enum)
 			{
 				echo "Writing {$field->name} as enum.\n";
-				$value = array_search($gdo->gdoVar($field->name), $field->enumValues);
-				$payload .= GWS_Message::wr16($value === false ? 0 : $value + 1);
+				$payload .= GWS_Message::wr16($field->enumIndex());
 			}
 			elseif (
 				($field instanceof GDT_Decimal) ||
@@ -111,18 +108,15 @@ abstract class GWS_Command
 			}
 			else
 			{
-				throw new GDO_Exception("Cannot ws encode {$field->name}");
+				throw new GDO_Exception("Cannot ws encode {$field->getName()}");
 			}
 		}
 		return $payload;
 	}
 
-	public function pagemenuToBinary(GDT_PageMenu $gdt)
+	public function pagemenuToBinary(GDT_PageMenu $gdt): string
 	{
-		return GWS_Message::wr16($gdt->getPage()) .
-			GWS_Message::wr16($gdt->getPageCount()) .
-			GWS_Message::wr32($gdt->numItems) .
-			GWS_Message::wr16($gdt->ipp);
+		return $gdt->renderBinary();
 	}
 
 }

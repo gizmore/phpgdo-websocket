@@ -18,19 +18,21 @@ use GDO\User\GDO_User;
 class GWS_Commands
 {
 
-	public const MID_LENGTH = 7; # Sync Message ID length
-	public const DEFAULT_MID = '0000000'; # Sync Message ID
+	final public const MID_LENGTH = 7; # Sync Message ID length
+	final public const DEFAULT_MID = '0000000'; # Sync Message ID
 
 	################
 	### Commands ###
 	################
 	/**
-	 *
 	 * @var GWS_Command[]
 	 */
-	public static $COMMANDS = [];
+	public static array $COMMANDS = [];
 
-	public static function register($code, GWS_Command $command, $binary = true)
+	/**
+	 * @throws GDO_Error
+	 */
+	public static function register(int $code, GWS_Command $command, bool $binary = true): void
 	{
 		if (isset(self::$COMMANDS[$code]))
 		{
@@ -39,12 +41,8 @@ class GWS_Commands
 		self::$COMMANDS[$code] = $command;
 	}
 
-	public static function webHookDB($message)
+	public static function webHookDB($message): void
 	{
-// 	    if (GDO_CONSOLE_VERBOSE)
-// 	    {
-// 	        echo "{$message}\n";
-// 	    }
 		$message = json_decode($message, true);
 		$event = $message['event'];
 		$args = $message['args'];
@@ -53,10 +51,10 @@ class GWS_Commands
 		{
 			$param = array_merge($param, $args);
 		}
-		return self::webHook($param);
+		self::webHook($param);
 	}
 
-	public static function webHook(array $hookData)
+	public static function webHook(array $hookData): void
 	{
 		$event = array_shift($hookData);
 		$method_name = "hook$event";
@@ -88,10 +86,6 @@ class GWS_Commands
 			throw new GDO_Error('err_gws_unknown_cmd', [sprintf('0x%04X', $cmd)]);
 		}
 		$command = self::$COMMANDS[$cmd];
-// 		if ($session = GDO_Session::instance())
-// 		{
-// 			$session->setVar('sess_last_url', "ws://" . get_class($command));
-// 		}
 		Logger::logWebsocket('Executing ' . get_class($command));
 		return $command->setMessage($message);
 	}

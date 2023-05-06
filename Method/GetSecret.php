@@ -1,6 +1,8 @@
 <?php
+declare(strict_types=1);
 namespace GDO\Websocket\Method;
 
+use GDO\Core\GDO_ArgException;
 use GDO\Core\GDT;
 use GDO\Core\GDT_JSON;
 use GDO\Core\GDT_UInt;
@@ -12,7 +14,7 @@ use GDO\Websocket\Module_Websocket;
 /**
  * Get cookie and user JSON for external apps.
  *
- * @version 7.0.1
+ * @version 7.0.3
  * @since 4.0.0
  * @author gizmore
  */
@@ -31,6 +33,9 @@ final class GetSecret extends MethodAjax
 		];
 	}
 
+	/**
+	 * @throws GDO_ArgException
+	 */
 	public function execute(): GDT
 	{
 		$json = [

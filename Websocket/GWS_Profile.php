@@ -1,76 +1,82 @@
 <?php
+declare(strict_types=1);
 namespace GDO\Websocket\Websocket;
 
+use GDO\Core\GDO_Error;
 use GDO\Core\GDT;
+use GDO\Core\ModuleLoader;
 use GDO\Friends\GDO_Friendship;
-use GDO\User\GDO_Profile;
 use GDO\User\GDO_User;
 use GDO\User\GDT_ACLRelation;
-use GDO\User\Method\Profile;
+use GDO\User\Module_User;
+use GDO\Util\WS;
 use GDO\Websocket\Server\GWS_Command;
 use GDO\Websocket\Server\GWS_Commands;
 use GDO\Websocket\Server\GWS_Message;
 
 /**
- * Ping and ws system hooks.
- *
- * 1. hook cache invalidation
- * 2. hook module vars changed
- * 3. hook user settings changed
- *
+ * WS Profile view.
  * @author gizmore
- *
+ * @version 7.0.3
  */
 final class GWS_Profile extends GWS_Command
 {
 
+	/**
+	 * @throws GDO_Error
+	 */
 	public function execute(GWS_Message $msg)
 	{
 		$me = $msg->user(); # own user
-		$user = GDO_User::findById($msg->read32u()); # target user
+		$target = GDO_User::findById((string)$msg->read32u()); # target user
 
-//		/** @var $globalACL GDT_ACLRelation * */
-//		$globalACL = $user->setting('User', 'profile_visibility');
-//		$reason = '';
-//		$globalACL->hasAccess($me, $user, $reason);
+		$payload = $msg::wr32($target->getID());
+		$payload .= $msg::wr8(GDO_Friendship::areRelated($me, $target) ? 1 : 0);
 
-		$method = Profile::make()->inputs(['for' => $user->renderUserName()]);
-//		$card = $method->getCard();
-		$profile = GDO_Profile::blank(); # The profile GDO/DTO
-// 		$profile->setVar($globalACL->name, $globalACL->getVar());
-		$profile = GDO_Profile::forUser($user);
-		$card = $method->executeFor($profile);
-//		$card = Profile::make()->getCard($profile);
+		/**
+		 * @var GDT_ACLRelation $global
+		 */
+		$global = Module_User::instance()->userSetting($target, 'profile_visibility');
+		$reason = '';
+		if (!$global->hasAccess($me, $target, $reason))
+		{
+			$payload .= WS::wr8(2) . WS::wrString($reason);
+			return $msg->replyBinary($msg->cmd(), $payload);
+		}
 
-//		foreach ($card->getAllFields() as $gdt)
-//		{
-// 			$settings = $module->getSettingsCache();
-// 			foreach ($settings as $gdt)
-// 			{
-// 				$gdt = $module->userSetting($user, $gdt->name);
-// 				$profile->setVar($gdt->name, null);
-// 				$aclName = $gdt->name . '_visible';
-// 				if ($module->hasSetting($aclName))
-// 				{
-// 					/** @var $fieldACL GDT_ACL **/
-// 					$fieldACL = $module->userSetting($user, $aclName);
-// 					if ($fieldACL->hasAccess($me, $user, $reason, false))
-// 					{
-// 						$profile->setVar($gdt->name, $module->userSettingVar($user, $gdt->name));
-// 					}
-// 				}
-// 				else
-// 				{
-// 					$profile->setVar($gdt->name, $module->userSettingVar($user, $gdt->name));
-// 				}
-// 			}
-//		}
-
-		$payload = $msg::wr32($user->getID());
-		$payload .= $msg::wr8(GDO_Friendship::areRelated($me, $user) ? 1 : 0);
-		$payload .= $profile->renderMode(GDT::RENDER_BINARY);
+		$modules = ModuleLoader::instance()->getEnabledModules();
+		foreach ($modules as $module)
+		{
+			$moduleSettings = $module->getSettingsCache();
+			$settings[$module->getName()] = [];
+			foreach ($moduleSettings as $gdt)
+			{
+				if ($gdt->isSerializable())
+				{
+					$payload .= $this->gdtSetting($module, $target, $gdt);
+				}
+			}
+		}
 		return $msg->replyBinary($msg->cmd(), $payload);
 	}
+
+	private function gdtSetting(\GDO\Core\GDO_Module $module, GDO_User $target, GDT $gdt): string
+	{
+		$user = GDO_User::current();
+		$name = $gdt->getName();
+		$acl = $module->getSettingACL($name);
+		if (!$acl)
+		{
+			return WS::wr8(0) . WS::wrString(t('err_hidden'));
+		}
+		$reason = '';
+		if (!($acl->hasAccess($user, $target, $reason)))
+		{
+			return WS::wr8(0) . WS::wrString($reason);
+		}
+		return WS::wr8(1) . $gdt->renderBinary();
+	}
+
 
 }
 
