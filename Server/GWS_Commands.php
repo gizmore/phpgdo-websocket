@@ -1,7 +1,7 @@
 <?php
 namespace GDO\Websocket\Server;
 
-use GDO\Core\GDO_Error;
+use GDO\Core\GDO_Exception;
 use GDO\Core\Logger;
 use GDO\User\GDO_User;
 
@@ -30,13 +30,13 @@ class GWS_Commands
 	public static array $COMMANDS = [];
 
 	/**
-	 * @throws GDO_Error
+	 * @throws GDO_Exception
 	 */
 	public static function register(int $code, GWS_Command $command, bool $binary = true): void
 	{
 		if (isset(self::$COMMANDS[$code]))
 		{
-			throw new GDO_Error('err_gws_dup_code', [$code, get_class($command)]);
+			throw new GDO_Exception('err_gws_dup_code', [$code, get_class($command)]);
 		}
 		self::$COMMANDS[$code] = $command;
 	}
@@ -83,7 +83,7 @@ class GWS_Commands
 		$cmd = $message->cmd();
 		if (!isset(self::$COMMANDS[$cmd]))
 		{
-			throw new GDO_Error('err_gws_unknown_cmd', [sprintf('0x%04X', $cmd)]);
+			throw new GDO_Exception('err_gws_unknown_cmd', [sprintf('0x%04X', $cmd)]);
 		}
 		$command = self::$COMMANDS[$cmd];
 		Logger::logWebsocket('Executing ' . get_class($command));

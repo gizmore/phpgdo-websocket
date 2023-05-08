@@ -2,7 +2,7 @@
 declare(strict_types=1);
 namespace GDO\Websocket\Method;
 
-use GDO\Core\GDO_ArgException;
+use GDO\Core\GDO_ArgError;
 use GDO\Core\GDT;
 use GDO\Core\GDT_JSON;
 use GDO\Core\GDT_UInt;
@@ -34,7 +34,7 @@ final class GetSecret extends MethodAjax
 	}
 
 	/**
-	 * @throws GDO_ArgException
+	 * @throws GDO_ArgError
 	 */
 	public function execute(): GDT
 	{

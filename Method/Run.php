@@ -28,7 +28,7 @@ final class Run extends MethodCLI
 		return false;
 	}
 
-	public function createForm(GDT_Form $form): void
+	protected function createForm(GDT_Form $form): void
 	{
 		$form->actions()->addField(GDT_Submit::make());
 	}

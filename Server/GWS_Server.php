@@ -4,7 +4,7 @@ namespace GDO\Websocket\Server;
 use Exception;
 use GDO\Core\Application;
 use GDO\Core\Debug;
-use GDO\Core\GDO_Error;
+use GDO\Core\GDO_Exception;
 use GDO\Core\GDO_Hook;
 use GDO\Core\Logger;
 use GDO\Core\Module_Core;
@@ -61,7 +61,7 @@ final class GWS_Server implements MessageComponentInterface
 		}
 		else
 		{
-			throw new GDO_Error('err_invalid_ipc');
+			throw new GDO_Exception('err_invalid_ipc');
 		}
 	}
 
@@ -96,7 +96,7 @@ final class GWS_Server implements MessageComponentInterface
 		}
 		else
 		{
-			throw new GDO_Error('err_invalid_ipc');
+			throw new GDO_Exception('err_invalid_ipc');
 		}
 		$_GET = [];
 		$_POST = [];

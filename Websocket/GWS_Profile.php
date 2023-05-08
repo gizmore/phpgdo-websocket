@@ -2,7 +2,7 @@
 declare(strict_types=1);
 namespace GDO\Websocket\Websocket;
 
-use GDO\Core\GDO_Error;
+use GDO\Core\GDO_Exception;
 use GDO\Core\GDT;
 use GDO\Core\ModuleLoader;
 use GDO\Friends\GDO_Friendship;
@@ -23,7 +23,7 @@ final class GWS_Profile extends GWS_Command
 {
 
 	/**
-	 * @throws GDO_Error
+	 * @throws GDO_Exception
 	 */
 	public function execute(GWS_Message $msg)
 	{
