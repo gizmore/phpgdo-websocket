@@ -181,6 +181,7 @@ final class GWS_Server implements MessageComponentInterface
 		if (!$from->user())
 		{
 			$this->onAuthBinary($message);
+			GDO_Session::commit();
 		}
 		else
 		{
