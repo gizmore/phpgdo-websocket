@@ -51,9 +51,10 @@ final class GWS_Profile extends GWS_Command
 			$settings[$module->getName()] = [];
 			foreach ($moduleSettings as $gdt)
 			{
-				if ($gdt->isSerializable())
-				{
-					$payload .= $this->gdtSetting($module, $target, $gdt);
+                if ($gdt->isSerializable())
+                {
+                    $gdt = $target->setting($module->getName(), $gdt->getName());
+                    $payload .= $this->gdtSetting($module, $target, $gdt);
 				}
 			}
 		}
