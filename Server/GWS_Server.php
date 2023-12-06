@@ -10,6 +10,7 @@ use GDO\Core\Logger;
 use GDO\Core\Module_Core;
 use GDO\Core\ModuleLoader;
 use GDO\Core\WithInstance;
+use GDO\DB\Database;
 use GDO\Net\GDT_IP;
 use GDO\Session\GDO_Session;
 use GDO\User\GDO_User;
@@ -74,6 +75,9 @@ final class GWS_Server implements MessageComponentInterface
 	public function mainloop($timerInterval = 0)
 	{
 		Logger::logMessage("GWS_Server::mainloop($timerInterval)");
+
+        Database::instance()->truncateTable(GDO_Hook::table());
+
 		if ($timerInterval > 0)
 		{
 			$this->server->loop->addPeriodicTimer($timerInterval / 1000.0, [$this->handler, 'timer']);

@@ -13,6 +13,7 @@ use GDO\Util\WS;
 use GDO\Websocket\Server\GWS_Command;
 use GDO\Websocket\Server\GWS_Commands;
 use GDO\Websocket\Server\GWS_Message;
+use function GDO\LoC\tpl\page\printLoC;
 
 /**
  * WS Profile view.
@@ -43,6 +44,10 @@ final class GWS_Profile extends GWS_Command
 			$payload .= WS::wr8(2) . WS::wrString($reason);
 			return $msg->replyBinary($msg->cmd(), $payload);
 		}
+        else
+        {
+            $payload .= WS::wr8(0);
+        }
 
 		$modules = ModuleLoader::instance()->getEnabledModules();
 		foreach ($modules as $module)
@@ -51,8 +56,9 @@ final class GWS_Profile extends GWS_Command
 			$settings[$module->getName()] = [];
 			foreach ($moduleSettings as $gdt)
 			{
-                if ($gdt->isSerializable())
+                if ($gdt->isSerializable() && ($gdt->isACLCapable() || ($gdt->getName() === 'profile_visibility'))  && (!$gdt->isHidden()))
                 {
+                    printf("{$gdt->getName()}\n");
                     $gdt = $target->setting($module->getName(), $gdt->getName());
                     $payload .= $this->gdtSetting($module, $target, $gdt);
 				}
@@ -63,6 +69,7 @@ final class GWS_Profile extends GWS_Command
 
 	private function gdtSetting(\GDO\Core\GDO_Module $module, GDO_User $target, GDT $gdt): string
 	{
+        echo "{$gdt->getName()}\n";
 		$user = GDO_User::current();
 		$name = $gdt->getName();
 		printf("Sending %s.%s...", $module->getName(), $gdt->getName());
