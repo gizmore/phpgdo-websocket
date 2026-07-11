@@ -40,7 +40,7 @@ abstract class GWS_CommandMethod extends GWS_Command
 	{
 		if (Application::isError())
 		{
-			$msg->replyErrorMessage($msg->cmd(), $response->renderJSON());
+			$msg->replyErrorMessage($msg->cmd(), $response->renderCLI());
 		}
 		else
 		{

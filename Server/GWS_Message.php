@@ -196,7 +196,13 @@ final class GWS_Message
 		return $this->index;
 	}
 
-	public function read32($signed = true, $index = -1) { return $this->readN(4, $signed, $index); }
+    public function move(int $by): self
+    {
+        $this->index += $by;
+        return $this;
+    }
+
+    public function read32($signed = true, $index = -1) { return $this->readN(4, $signed, $index); }
 
 	###############
 	### Factory ###
