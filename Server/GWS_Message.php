@@ -251,7 +251,7 @@ final class GWS_Message
 		$cmd = $this->read16u();
 		if (($cmd & 0x8000) > 0)
 		{
-			$this->mid = $this->read24();
+			$this->mid = $this->read24u();
 		}
 		$this->command = $cmd & 0x7FFF;
 		return $this;
