@@ -67,7 +67,7 @@ final class GWS_Message
 
 	public function isSync() { return $this->mid > 0; }
 
-	public function replyText($command, $data = '')
+	public function replyText($command, string $data = '')
 	{
 		$payload = $this->mid > 0 ? "$command:MID:$this->mid:$data" : "$command:$data";
 		Logger::logWebsocket(sprintf('%s << %s', $this->user() ? $this->user()->renderUserName() : '???', $payload));
