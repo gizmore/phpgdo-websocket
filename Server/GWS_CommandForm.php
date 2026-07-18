@@ -73,7 +73,7 @@ abstract class GWS_CommandForm extends GWS_Command
 		if ($response->hasError())
 		{
 			echo print_r($response->render(), 1);
-			$msg->replyErrorMessage($msg->cmd(), $response->renderHTML());
+			$msg->replyErrorMessage($msg->cmd(), $this->getMethod()->renderName() . ': ' . $response->renderCLI());
 		}
 		else
 		{
