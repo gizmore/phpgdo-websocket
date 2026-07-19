@@ -72,13 +72,7 @@ abstract class GWS_CommandForm extends GWS_Command
 	{
 		if ($response->hasError())
 		{
-            $text = json(array_merge(
-                $form->renderJSON(), [
-                    'global' => CLI::getTopResponse(),
-                    'form_title' => $this->getMethod()->getModule()->gdoHumanName(),
-                ]
-            ));
-			$msg->replyErrorMessage($msg->cmd(), $text);
+			$msg->replyErrorMessage($msg->cmd(), json_encode($response->renderJSON()));
 		}
         else
 		{
