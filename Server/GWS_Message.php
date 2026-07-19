@@ -202,18 +202,11 @@ final class GWS_Message
         return $this;
     }
 
-    public function read32($signed = true, $index = -1) { return $this->readN(4, $signed, $index); }
-
-	###############
-	### Factory ###
-	###############
-
-	public function read8u($index = -1) { return $this->readN(1, false, $index); }
-
 	##############
 	### Writer ###
 	##############
 
+    public function read32($signed = true, $index = -1) { return $this->readN(4, $signed, $index); }
 	public function read24u($index = -1) { return $this->readN(3, false, $index); }
 
 	public function read32u($index = -1) { return $this->readN(4, false, $index); }
@@ -230,8 +223,6 @@ final class GWS_Message
 		$this->index += $num;
 		return strrev($chars);
 	}
-
-	public function readChar($index = -1) { return $this->readChars(1, $index); }
 
 	public function readString($index = -1)
 	{
@@ -259,46 +250,13 @@ final class GWS_Message
 
 	public function read16u($index = -1) { return $this->readN(2, false, $index); }
 
-	public function read24($signed = true, $index = -1) { return $this->readN(3, $signed, $index); }
+	public static function wrF(float|int $float) { return pack('f', floatval($float)); }
 
-	public function readTextCmd()
-	{
-		$firstCol = strpos($this->data, ':');
-		$numParts = strpos($this->data, ':MID:') === $firstCol ? 4 : 2;
-		$parts = explode(':', $this->data, $numParts);
-		if ($numParts === 4)
-		{
-			$this->mid = $parts[2];
-		}
-		$this->command = $parts[0];
-		$this->data = array_pop($parts);
-		return $this;
-	}
+	public static function wrD(float|int $double) { return pack('d', doubleval($double)); }
 
-	public function writeFloat($float) { return self::wrF($float); }
-
-	public static function wrF($float) { return pack('f', floatval($float)); }
-
-	public function writeDouble($double) { return self::wrD($double); }
-
-	public static function wrD($double) { return pack('d', doubleval($double)); }
-
-	public function writeTimestamp() { return self::wrTS(); }
-
-	public static function wrTS() { return self::wr32(Application::$TIME); }
+	public static function wrTS() { return self::wrD(Application::$TIME); }
 
 	public static function wr32($value) { return self::wrN(4, $value); }
 
-	public function write8($value) { return self::wrN(1, $value); }
-
-	public function writeCmd($value) { return self::wrN(2, $value); }
-
 	public function write32($value) { return self::wrN(4, $value); }
-
-	###############
-	### Hexdump ###
-	###############
-
-	public function write64($value) { return self::wrN(8, $value); }
-
 }

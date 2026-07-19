@@ -174,9 +174,9 @@ final class GWS_Server implements MessageComponentInterface
 		die('NON BINARY MESSAGE NOT SUPPORTED ANYMORE');
 	}
 
-	public function onBinaryMessage(ConnectionInterface $from, $data)
+	public function onBinaryMessage(ConnectionInterface $from, string $data)
 	{
-		printf("%s >> BIN\n", $from->user() ? $from->user()->renderUserName() : '???');
+		printf("%s >> BIN (%d bytes)\n", $from->user() ? $from->user()->renderUserName() : '???', strlen($data));
 		GDT_IP::$CURRENT = $from->getRemoteAddress();
 		Application::updateTime();
 		echo GWS_Message::hexdump($data);
@@ -193,7 +193,6 @@ final class GWS_Server implements MessageComponentInterface
 			{
 				$app = Application::$INSTANCE;
 				$app->reset();
-// 				$app->inputs([]);
 				$_REQUEST = [];
 				$_FILES = [];
 				/**

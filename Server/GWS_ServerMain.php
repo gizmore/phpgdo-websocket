@@ -48,6 +48,7 @@ $app->cli();
 $app->verb(GDT_Form::POST);
 $app->modeDetected(GDT::RENDER_BINARY);
 
+Application::$MODE = GDT::RENDER_TEXT;
 Trans::$ISO = GDO_LANGUAGE;
 Logger::init(null, Logger::ALL & ~Logger::BUFFERED); # 1st init as guest
 Debug::init();

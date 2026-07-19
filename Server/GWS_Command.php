@@ -69,13 +69,11 @@ abstract class GWS_Command
 
 			if ($field instanceof GDT_Position)
 			{
-				echo "Writing {$field->name} as position.\n";
 				$payload .= GWS_Message::wrF(floatval($field->getLat()));
 				$payload .= GWS_Message::wrF(floatval($field->getLng()));
 			}
 			elseif ($field instanceof GDT_Enum)
 			{
-				echo "Writing {$field->name} as enum.\n";
 				$payload .= GWS_Message::wr16($field->enumIndex());
 			}
 			elseif (
@@ -83,7 +81,6 @@ abstract class GWS_Command
 				($field instanceof GDT_Float)
 			)
 			{
-				echo "Writing {$field->name} as float.\n";
 				$payload .= GWS_Message::wrF($gdo->gdoVar($field->name));
 			}
 			elseif ($field instanceof GDT_Int)
@@ -93,7 +90,6 @@ abstract class GWS_Command
 			}
 			elseif ($field instanceof GDT_Timestamp)
 			{
-				echo "Writing {$field->name} as timestamp.\n";
 				$time = 0;
 				if ($date = $gdo->gdoVar($field->name))
 				{
@@ -103,7 +99,6 @@ abstract class GWS_Command
 			}
 			elseif ($field instanceof GDT_String)
 			{
-				echo "Writing {$field->name} as string.\n";
 				$payload .= GWS_Message::wrS($gdo->gdoVar($field->name));
 			}
 			else

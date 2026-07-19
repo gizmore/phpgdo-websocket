@@ -72,10 +72,15 @@ abstract class GWS_CommandForm extends GWS_Command
 	{
 		if ($response->hasError())
 		{
-			echo print_r($response->render(), 1);
-			$msg->replyErrorMessage($msg->cmd(), $this->getMethod()->renderName() . ': ' . $response->renderCLI());
+            $text = json(array_merge(
+                $form->renderJSON(), [
+                    'global' => CLI::getTopResponse(),
+                    'form_title' => $this->getMethod()->getModule()->gdoHumanName(),
+                ]
+            ));
+			$msg->replyErrorMessage($msg->cmd(), $text);
 		}
-		else
+        else
 		{
 			GDO_Session::instance()->commit();
 			$this->replySuccess($msg, $form, $response);
@@ -123,15 +128,6 @@ abstract class GWS_CommandForm extends GWS_Command
 		{
 			$payload .= GWS_Message::wrS($gdt->renderText());
 		}
-
-		// if ($fields = $gdt->getFields())
-		// {
-		// foreach ($fields as $gdt2)
-		// {
-		// $payload .= $this->payloadFromField($gdt2);
-		// }
-		// }
-
 		return $payload;
 	}
 
@@ -160,21 +156,4 @@ abstract class GWS_CommandForm extends GWS_Command
 	{
 		$form->removeFieldNamed('captcha');
 	}
-
-// 	protected function selectSubmit(GDT_Form $form)
-// 	{
-// 		$this->selectSubmitNum($form, 0);
-// 	}
-
-// 	protected function selectSubmitNum(GDT_Form $form, $num)
-// 	{
-// 		$submits = $this->getSubmits($form);
-// 		if ($submit = @$submits[$num])
-// 		{
-// 			$name = $submit->name;
-// 			$f = $form->formName();
-// // 			$_REQUEST[$f][$name] = $name;
-// 		}
-// 	}
-
 }
