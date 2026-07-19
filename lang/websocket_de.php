@@ -7,7 +7,7 @@ return [
 	'err_setting_unchanged' => 'Die Einstellung wurde nicht geändert.',
 	'err_bind_form' => 'Konnte Websocket Anfragedaten nicht an das Formular binden: %s',
 	'err_gws_dup_code' => 'Die folgende Klasse benutzt einen Websocket Code mehrfach: %s.',
-
+    'form_error_title' => 'Formularfehler',
 	'cfg_ws_autoconnect' => 'Automatisch verbinden?',
 	'cfg_ws_guests' => 'Erlaube Gästen die Websocket Verbindung?',
 	'cfg_ws_port' => 'Websocket Port',

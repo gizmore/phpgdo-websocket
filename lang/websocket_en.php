@@ -7,7 +7,7 @@ return [
 	'err_setting_unchanged' => 'The setting has not changed.',
 	'err_bind_form' => 'Failed to bind websocket input to form: %s',
 	'err_gws_dup_code' => 'The following class uses an existing ws code: %s.',
-
+    'form_error_title' => 'Form Error',
 	'cfg_ws_autoconnect' => 'Automatically connect?',
 	'cfg_ws_guests' => 'Allow guest connections?',
 	'cfg_ws_port' => 'Websocket port',
