@@ -76,17 +76,13 @@ final class GWS_Profile extends GWS_Command
 		$acl = $module->getSettingACL($name);
 		if (!$acl)
 		{
-			echo "NO ACL\n";
-			return '';
-//			return WS::wr8(0) . WS::wrString(t('err_hidden'));
+			return WS::wr8(0) . WS::wrString(t('err_hidden'));
 		}
 		$reason = '';
 		if (!($acl->hasAccess($user, $target, $reason)))
 		{
-			echo "NO Access\n";
 			return WS::wr8(0) . WS::wrString($reason);
 		}
-		echo "YES!\n";
 		return WS::wr8(1) . $gdt->renderBinary();
 	}
 
