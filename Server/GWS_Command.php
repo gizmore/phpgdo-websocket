@@ -14,6 +14,7 @@ use GDO\Date\Time;
 use GDO\Maps\GDT_Position;
 use GDO\Table\GDT_PageMenu;
 use GDO\User\GDO_User;
+use GDO\Util\WS;
 
 /**
  * GWS_Commands have to register via GWS_Commands::register($code, GWS_Command, $binary=true)
@@ -59,54 +60,16 @@ abstract class GWS_Command
 		$fields = $fields ? $gdo->getGDOColumns($fields) : $gdo->gdoColumnsCache();
 		$payload = '';
 		foreach ($fields as $field)
-		{
-			if ((!$field->isSerializable()))
-			{
-				continue;
-			}
-
-			$field->gdo($gdo);
-
-			if ($field instanceof GDT_Position)
-			{
-				$payload .= GWS_Message::wrF(floatval($field->getLat()));
-				$payload .= GWS_Message::wrF(floatval($field->getLng()));
-			}
-			elseif ($field instanceof GDT_Enum)
-			{
-				$payload .= GWS_Message::wr16($field->enumIndex());
-			}
-			elseif (
-				($field instanceof GDT_Decimal) ||
-				($field instanceof GDT_Float)
-			)
-			{
-				$payload .= GWS_Message::wrF($gdo->gdoVar($field->name));
-			}
-			elseif ($field instanceof GDT_Int)
-			{
-				echo "Writing {$field->name} as int.\n";
-				$payload .= GWS_Message::wrN($field->bytes, $gdo->gdoVar($field->name));
-			}
-			elseif ($field instanceof GDT_Timestamp)
-			{
-				$time = 0;
-				if ($date = $gdo->gdoVar($field->name))
-				{
-					$time = Time::getTimestamp($date);
-				}
-				$payload .= GWS_Message::wr32(floor($time));
-			}
-			elseif ($field instanceof GDT_String)
-			{
-				$payload .= GWS_Message::wrS($gdo->gdoVar($field->name));
-			}
-			else
-			{
-				throw new GDO_Exception("Cannot ws encode {$field->getName()}");
-			}
-		}
-		return $payload;
+        {
+            if ($field->isSerializable())
+            {
+                $out = $field->gdo($gdo)->renderBinary();
+                echo "Write {$field->getName()}: ";
+                GWS_Message::hexdump($out)."\n";
+                $payload .= $out;
+            }
+        }
+        return $payload;
 	}
 
 	public function pagemenuToBinary(GDT_PageMenu $gdt): string

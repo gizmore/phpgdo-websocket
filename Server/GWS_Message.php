@@ -53,13 +53,11 @@ final class GWS_Message
 
 	public static function wrCmd($value) { return self::wrN(2, $value); }
 
-	public static function wr24($value) { return self::wrN(3, $value); }
 
 	#############
 	### Reply ###
 	#############
 
-	public static function wr64($value) { return self::wrN(8, $value); }
 
 	public function conn() { return $this->from; }
 
@@ -90,7 +88,6 @@ final class GWS_Message
 
 	public function replyErrorMessage($code, $message)
 	{
-// 		$message = $message['error'];
 		Logger::logWebsocket(sprintf('%s: ERROR - %s', ($this->user() ? $this->user()->renderUserName() : '???'), $message));
 		return $this->replyBinary(0x0000, $this->write16($code) . $this->writeString($message));
 	}
@@ -213,9 +210,15 @@ final class GWS_Message
 
 	public function readFloat($index = -1)
 	{
-		$p = unpack('f', $this->readChars(4, $index));
+		$p = unpack('f', $this->readChars(4, $this->index($index)));
 		return array_pop($p);
 	}
+
+    public function readDouble(int $index = -1): float
+    {
+        $value = unpack('evalue', $this->readChars(8, $index));
+        return array_pop($value);
+    }
 
 	public function readChars($num, $index = -1)
 	{
@@ -252,11 +255,9 @@ final class GWS_Message
 
 	public static function wrF(float|int $float) { return pack('f', floatval($float)); }
 
-	public static function wrD(float|int $double) { return pack('d', doubleval($double)); }
+	public static function wrD(float|int $double) { return pack('e', doubleval($double)); }
 
 	public static function wrTS() { return self::wrD(Application::$TIME); }
 
 	public static function wr32($value) { return self::wrN(4, $value); }
-
-	public function write32($value) { return self::wrN(4, $value); }
 }
