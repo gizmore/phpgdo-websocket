@@ -57,7 +57,7 @@ final class GWS_Form
 
 				if ($gdt instanceof GDT_Checkbox)
 				{
-					$var = $msg->read8();
+					$var = $msg->read16u();
 					$inputs[$gdt->getName()] = (string) $var;
 //					$gdt->value($value > 0);
 				}
