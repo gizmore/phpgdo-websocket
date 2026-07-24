@@ -41,12 +41,12 @@ final class GWS_Profile extends GWS_Command
 		$reason = '';
 		if (!$global->hasAccess($me, $target, $reason))
 		{
-			$payload .= WS::wr8(2) . WS::wrString($reason);
+			$payload .= WS::wr8(0) . WS::wrString($reason);
 			return $msg->replyBinary($msg->cmd(), $payload);
 		}
         else
         {
-            $payload .= WS::wr8(0);
+            $payload .= WS::wr8(1);
         }
 
 		$modules = ModuleLoader::instance()->getEnabledModules();
@@ -56,9 +56,9 @@ final class GWS_Profile extends GWS_Command
 			$settings[$module->getName()] = [];
 			foreach ($moduleSettings as $gdt)
 			{
-                if ($gdt->isSerializable() && ($gdt->isACLCapable() || ($gdt->getName() === 'profile_visibility'))  && (!$gdt->isHidden()))
+                if ($gdt->isSerializable() && (!$gdt->isHidden()))
                 {
-                    printf("{$gdt->getName()}\n");
+                    printf("Writing {$gdt->getName()}\n");
                     $gdt = $target->setting($module->getName(), $gdt->getName());
                     $payload .= $this->gdtSetting($module, $target, $gdt);
 				}
@@ -72,20 +72,15 @@ final class GWS_Profile extends GWS_Command
         echo "{$gdt->getName()}\n";
 		$user = GDO_User::current();
 		$name = $gdt->getName();
-		printf("Sending %s.%s...", $module->getName(), $gdt->getName());
 		$acl = $module->getSettingACL($name);
-		if (!$acl)
-		{
-			return WS::wr8(0) . WS::wrString(t('err_hidden'));
-		}
 		$reason = '';
-		if (!($acl->hasAccess($user, $target, $reason)))
+		if ($acl && !($acl->hasAccess($user, $target, $reason)))
 		{
 			return WS::wr8(0) . WS::wrString($reason);
 		}
+        GWS_Message::hexdump($gdt->renderBinary());
 		return WS::wr8(1) . $gdt->renderBinary();
 	}
-
 
 }
 

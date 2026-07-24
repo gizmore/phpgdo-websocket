@@ -64,8 +64,6 @@ abstract class GWS_Command
             if ($field->isSerializable())
             {
                 $out = $field->gdo($gdo)->renderBinary();
-                echo "Write {$field->getName()}: ";
-                GWS_Message::hexdump($out)."\n";
                 $payload .= $out;
             }
         }
