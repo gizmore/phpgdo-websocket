@@ -68,7 +68,7 @@ final class GWS_Message
 
 	public function replyText($command, string $data = '')
 	{
-		$payload = $this->mid > 0 ? "$command:MID:$this->mid:$data" : "$command:$data";
+		$payload = $this->isSync() > 0 ? "$command:MID:$this->mid:$data" : "$command:$data";
 		Logger::logWebsocket(sprintf('%s << %s', $this->user() ? $this->user()->renderUserName() : '???', $payload));
 		return $this->from->send($payload);
 	}
@@ -165,11 +165,6 @@ final class GWS_Message
 
 	public function readN($bytes, $signed = true, $index = -1)
 	{
-		if (!$this->hasMore($bytes))
-		{
-			throw new GDO_Exception('Buffer underflow in bytestream.');
-		}
-
 		$index = $this->index($index);
 		$back = 0;
 		for ($i = 0; $i < $bytes; $i++)

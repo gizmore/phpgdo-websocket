@@ -46,11 +46,9 @@ abstract class GWS_CommandForm extends GWS_Command
 			return;
 		}
 
-// 		$this->selectSubmit($form);
-		$inputs = $method->getInputs();
 		if ($button = $method->getAutoButton())
 		{
-			$inputs[$button] = '1';
+            $method->addInput($button, '1');
 		}
         $this->fillRequestVars($msg, $method);
 		$response = $method->executeWithInputs($method->getInputs());
