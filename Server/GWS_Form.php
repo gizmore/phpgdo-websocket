@@ -51,7 +51,7 @@ final class GWS_Form
 	{
 		try
 		{
-			if ($gdt->isSerializable())
+			if ($gdt->isSerializable() && $gdt->isWriteable())
 			{
 				Logger::logWebsocket(sprintf('Reading %s as a %s.', $gdt->getName(), get_class($gdt)));
 
@@ -61,12 +61,12 @@ final class GWS_Form
 					$inputs[$gdt->getName()] = (string) $var;
 //					$gdt->value($value > 0);
 				}
-				elseif ($gdt instanceof GDT_String)
-				{
-					$var = $msg->readString();
-					$inputs[$gdt->getName()] = (string)$var;
-//					$gdt->addInputValue($msg->readString());
-				}
+                elseif ($gdt instanceof GDT_Enum)
+                {
+                    $value = $gdt->enumForId($msg->read16u());
+                    $inputs[$gdt->getName()] = (string)$value;
+//					$gdt->addInputValue();
+                }
 				elseif (
 					($gdt instanceof GDT_Decimal) ||
 					($gdt instanceof GDT_Float)
@@ -88,12 +88,6 @@ final class GWS_Form
 					$inputs[$gdt->getName()] = (string)$value;
 //					$gdt->addInputValue();
 				}
-				elseif ($gdt instanceof GDT_Enum)
-				{
-					$value = $gdt->enumForId($msg->read16u());
-					$inputs[$gdt->getName()] = (string)$value;
-//					$gdt->addInputValue();
-				}
 				elseif ($gdt instanceof GDT_Timestamp)
 				{
 					$ts = $msg->read32u();
@@ -108,6 +102,12 @@ final class GWS_Form
 //						$gdt->addInputValue(null);
 					}
 				}
+                elseif ($gdt instanceof GDT_String)
+                {
+                    $var = $msg->readString();
+                    $inputs[$gdt->getName()] = (string)$var;
+//					$gdt->addInputValue($msg->readString());
+                }
 				Logger::logWebsocket(sprintf('Reading %s as a %s with var %s.', $gdt->name, get_class($gdt), $gdt->var));
 			}
 		}

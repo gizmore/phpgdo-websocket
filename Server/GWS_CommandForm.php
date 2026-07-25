@@ -52,7 +52,8 @@ abstract class GWS_CommandForm extends GWS_Command
 		{
 			$inputs[$button] = '1';
 		}
-		$response = $method->executeWithInputs($inputs);
+        $this->fillRequestVars($msg, $method);
+		$response = $method->executeWithInputs($method->getInputs());
 		$this->postExecute($msg, $form, $response);
 	}
 

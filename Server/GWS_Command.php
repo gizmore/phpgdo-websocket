@@ -61,7 +61,7 @@ abstract class GWS_Command
 		$payload = '';
 		foreach ($fields as $field)
         {
-            if ($field->isSerializable())
+            if ($field->isSerializable() && (!$field->isHidden()))
             {
                 $out = $field->gdo($gdo)->renderBinary();
                 $payload .= $out;
