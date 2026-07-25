@@ -5,6 +5,7 @@ use GDO\Core\Application;
 use GDO\Core\GDO_Exception;
 use GDO\Core\Logger;
 use GDO\User\GDO_User;
+use GDO\Util\WS;
 
 final class GWS_Message
 {
@@ -89,7 +90,7 @@ final class GWS_Message
 	public function replyErrorMessage($code, $message)
 	{
 		Logger::logWebsocket(sprintf('%s: ERROR - %s', ($this->user() ? $this->user()->renderUserName() : '???'), $message));
-		return $this->replyBinary(0x0000, $this->write16($code) . $this->writeString($message));
+		return $this->replyBinary(0x0000, WS::wr16($code) . WS::wrString($message));
 	}
 
 	/**
