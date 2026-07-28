@@ -70,9 +70,4 @@ abstract class GWS_Command
         return $payload;
 	}
 
-	public function pagemenuToBinary(GDT_PageMenu $gdt): string
-	{
-		return $gdt->renderBinary();
-	}
-
 }

@@ -126,27 +126,4 @@ abstract class GWS_CommandForm extends GWS_Command
 
 	public function afterReplySuccess(GWS_Message $msg) {}
 
-	/**
-	 *
-	 * @param GDT_Form $form
-	 *
-	 * @return GDT_Submit[]
-	 */
-	protected function getSubmits(GDT_Form $form)
-	{
-		$submits = [];
-		foreach ($form->actions() as $field)
-		{
-			if ($field instanceof GDT_Submit)
-			{
-				$submits[] = $field;
-			}
-		}
-		return $submits;
-	}
-
-	protected function removeCaptcha(GDT_Form $form)
-	{
-		$form->removeFieldNamed('captcha');
-	}
 }
