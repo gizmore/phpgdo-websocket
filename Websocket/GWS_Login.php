@@ -22,7 +22,7 @@ final class GWS_Login extends GWS_CommandForm
 		$user = GDO_Session::user();
 		GDO_User::setCurrent($user);
 		$user->tempSet('sess_id', GDO_Session::instance()->getID());
-// 		$user->recache();
+		$user->recache();
 		$msg->conn()->setUser($user);
 		GWS_Global::addUser($user, $msg->conn());
 		$msg->replyText($msg->cmd(), json_encode(Module_Core::instance()->gdoUserJSON()));
