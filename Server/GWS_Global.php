@@ -61,15 +61,26 @@ final class GWS_Global
 		}
 	}
 
-	public static function removeUser(GDO_User $user, $reason = 'NO_REASON')
+	/**
+	 * Remove a user only when the closing connection is still its active one.
+	 * A page reload can establish the replacement connection before Ratchet
+	 * notifies us that the previous connection has closed.
+	 */
+	public static function removeUser(GDO_User $user, $connection = null): bool
 	{
 		$key = $user->getID();
+		if (($connection !== null) && ((self::$CONNECTIONS[$key] ?? null) !== $connection))
+		{
+			return false;
+		}
 		if (isset(self::$USERS[$key]))
 		{
 			unset(self::$USERS[$key]);
 			unset(self::$CONNECTIONS[$key]);
 // 			GWS_Global::disconnect($user, $reason);
+			return true;
 		}
+		return false;
 	}
 
 	public static function getOrLoadUserById($id)

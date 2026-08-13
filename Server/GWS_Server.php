@@ -176,10 +176,10 @@ final class GWS_Server implements MessageComponentInterface
 
 	public function onBinaryMessage(ConnectionInterface $from, string $data)
 	{
-		printf("%s >> BIN (%d bytes)\n", $from->user() ? $from->user()->renderUserName() : '???', strlen($data));
+		# Never dump inbound frames: forms may contain passwords or other secrets.
+		Logger::logWebsocket(sprintf('%s >> BIN (%d bytes)', $from->user() ? $from->user()->renderUserName() : '???', strlen($data)));
 		GDT_IP::$CURRENT = $from->getRemoteAddress();
 		Application::updateTime();
-		echo GWS_Message::hexdump($data);
 		$message = new GWS_Message($data, $from);
 		$message->readCmd();
 		if (!$from->user())
@@ -250,9 +250,11 @@ final class GWS_Server implements MessageComponentInterface
 		Logger::logCron(sprintf('GWS_Server::onClose()'));
 		if ($user = $conn->user())
 		{
-			$this->handler->disconnect($user);
 			$conn->setUser(false);
-			GWS_Global::removeUser($user);
+			if (GWS_Global::removeUser($user, $conn))
+			{
+				$this->handler->disconnect($user);
+			}
 		}
 	}
 
