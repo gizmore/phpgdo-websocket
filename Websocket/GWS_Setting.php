@@ -1,7 +1,6 @@
 <?php
 namespace GDO\Websocket\Websocket;
 
-use GDO\Core\GDO;
 use GDO\Core\Logger;
 use GDO\Core\ModuleLoader;
 use GDO\DB\Cache;
@@ -64,15 +63,12 @@ final class GWS_Setting extends GWS_Command
 			return $msg->replyErrorMessage($msg->cmd(), 'The field visibility must not exceed profile visibility.');
 		}
 
-		Logger::logWebsocket("Writing Setting $key to $value");
-
-		# XXX: Ugly fix.
-		if ($value instanceof GDO)
-		{
-			$value = $value->getID();
-		}
-
-		$module->saveSetting($key, $value);
+		# User settings persist their serialized GDT representation. Date GDTs
+		# validate to DateTime objects, so neither log nor storage may receive the
+		# raw value directly.
+		$var = $setting->toVar($value) ?? '';
+		Logger::logWebsocket("Writing Setting $key to $var");
+		$module->saveSetting($key, $var);
 
 		# New clients may send a fourth, optional relation field. Older three-field
 		# clients retain the existing behaviour unchanged.

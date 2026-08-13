@@ -54,7 +54,7 @@ Logger::init(null, Logger::ALL & ~Logger::BUFFERED); # 1st init as guest
 Debug::init();
 Debug::enableErrorHandler();
 Debug::setDieOnError(false);
-Debug::setMailOnError(GDO_ERROR_MAIL);
+Debug::setMailOnError(GDO_SEND_ERROR_MAILS);
 Database::init();
 GDO_Session::init(GDO_SESS_NAME, GDO_SESS_DOMAIN, GDO_SESS_TIME, !GDO_SESS_JS, GDO_SESS_HTTPS);
 $loader = ModuleLoader::instance();
