@@ -72,22 +72,26 @@ final class GWS_Profile extends GWS_Command
         echo "{$gdt->getName()}\n";
 		$user = GDO_User::current();
 		$name = $gdt->getName();
-		$acl = $module->getSettingACL($name);
+		// The profile exposes a target user's data. Its ACL must therefore be
+		// resolved for that target, not taken from the module-wide default.
+		$acl = $module->getUserConfigACLField($name, $target);
+		$relation = $acl ? $acl->aclRelation->enumIndexFor($acl->aclRelation->getVar()) : 0;
 		$var = $gdt->getVar();
 		// An absent value reveals nothing and has precedence over its ACL. This
 		// prevents an empty optional field from looking like a denied one.
 		if (($var === null) || ($var === '') || ($var === []))
 		{
-			return WS::wr8(2);
+			return WS::wr8(2) . WS::wr8($relation);
 		}
 		$reason = '';
 		if ($acl && !($acl->hasAccess($user, $target, $reason)))
 		{
 			// Profile-field frame status: 0=value, 1=ACL error, 2=empty.
-			return WS::wr8(1) . WS::wrString($reason);
+			return WS::wr8(1) . WS::wr8($relation) . WS::wrString($reason);
 		}
-        GWS_Message::hexdump($gdt->renderBinary());
-		return WS::wr8(0) . $gdt->renderBinary();
+		// Field frame: status (0=value, 1=denied, 2=empty), target ACL enum ID,
+		// then either the field binary value or the denial reason.
+		return WS::wr8(0) . WS::wr8($relation) . $gdt->renderBinary();
 	}
 
 }
