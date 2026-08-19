@@ -73,13 +73,21 @@ final class GWS_Profile extends GWS_Command
 		$user = GDO_User::current();
 		$name = $gdt->getName();
 		$acl = $module->getSettingACL($name);
+		$var = $gdt->getVar();
+		// An absent value reveals nothing and has precedence over its ACL. This
+		// prevents an empty optional field from looking like a denied one.
+		if (($var === null) || ($var === '') || ($var === []))
+		{
+			return WS::wr8(2);
+		}
 		$reason = '';
 		if ($acl && !($acl->hasAccess($user, $target, $reason)))
 		{
-			return WS::wr8(0) . WS::wrString($reason);
+			// Profile-field frame status: 0=value, 1=ACL error, 2=empty.
+			return WS::wr8(1) . WS::wrString($reason);
 		}
         GWS_Message::hexdump($gdt->renderBinary());
-		return WS::wr8(1) . $gdt->renderBinary();
+		return WS::wr8(0) . $gdt->renderBinary();
 	}
 
 }
