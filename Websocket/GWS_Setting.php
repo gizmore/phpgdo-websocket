@@ -43,6 +43,7 @@ final class GWS_Setting extends GWS_Command
 			return $msg->replyErrorMessage($msg->cmd(), t('err_unknown_setting', [html($key)]));
 		}
 		$setting = $module->userSetting($user, $key);
+		$oldVar = $setting->getVar(); #PP#delete#
 		if (!$setting->isSerializable() || $setting->isHidden() || !$setting->isWriteable())
 		{
 			return $msg->replyErrorMessage($msg->cmd(), t('err_unknown_setting', [html($key)]));
@@ -68,7 +69,13 @@ final class GWS_Setting extends GWS_Command
 		# raw value directly.
 		$var = $setting->toVar($value) ?? '';
 		Logger::logWebsocket("Writing Setting $key to $var");
-		$module->saveSetting($key, $var);
+		# A WebSocket command has its authenticated user on the message.  Do not
+		# rely on GDO_User::current() here: it can still be the server/system
+		# context and would make an acknowledged setting change disappear for the
+		# actual client after reload.
+		$saved = $module->saveUserSetting($user, $key, $var);
+		echo sprintf("GWS_Setting user=%d key=%s old=%s new=%s saved=%s\n", #PP#delete#
+			$user->getID(), $key, $oldVar, $var, $saved->getVar()); #PP#delete#
 
 		# New clients may send a fourth, optional relation field. Older three-field
 		# clients retain the existing behaviour unchanged.

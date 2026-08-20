@@ -176,7 +176,12 @@ final class GWS_Server implements MessageComponentInterface
 
 	public function onBinaryMessage(ConnectionInterface $from, string $data)
 	{
-		# Never dump inbound frames: forms may contain passwords or other secrets.
+		# Incoming frames can contain passwords and private profile data. Keep the
+		# dump for local protocol debugging only; PP removes it from production.
+		if (GDO_ENV === 'dev') #PP#delete#
+		{ #PP#delete#
+			GWS_Message::hexdump($data); #PP#delete#
+		} #PP#delete#
 		Logger::logWebsocket(sprintf('%s >> BIN (%d bytes)', $from->user() ? $from->user()->renderUserName() : '???', strlen($data)));
 		GDT_IP::$CURRENT = $from->getRemoteAddress();
 		Application::updateTime();
