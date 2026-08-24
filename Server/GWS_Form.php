@@ -53,7 +53,7 @@ final class GWS_Form
 		{
 			if ($gdt->isSerializable() && $gdt->isWriteable())
 			{
-				Logger::logWebsocket(sprintf('Reading %s as a %s.', $gdt->getName(), get_class($gdt)));
+//				Logger::logWebsocket(sprintf('Reading %s as a %s.', $gdt->getName(), get_class($gdt)));
 
 				if ($gdt instanceof GDT_Checkbox)
 				{
@@ -108,7 +108,7 @@ final class GWS_Form
                     $inputs[$gdt->getName()] = (string)$var;
 //					$gdt->addInputValue($msg->readString());
                 }
-				Logger::logWebsocket(sprintf('Reading %s as a %s with var %s.', $gdt->name, get_class($gdt), $gdt->var));
+//				Logger::logWebsocket(sprintf('Reading %s as a %s with var %s.', $gdt->name, get_class($gdt), $gdt->var));
 			}
 		}
 		catch (GDO_Exception $ex)
