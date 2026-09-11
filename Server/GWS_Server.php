@@ -88,7 +88,7 @@ final class GWS_Server implements MessageComponentInterface
 		{
 			# 3 seconds db poll alternative. Start clean.
 			GDO_Hook::table()->truncate();
-			$this->server->loop->addPeriodicTimer(3.14, [$this, 'ipcdbTimer']);
+			$this->server->loop->addPeriodicTimer(4.0, [$this, 'ipcdbTimer']);
 		}
 		elseif (GDO_IPC === 'ipc')
 		{
@@ -113,7 +113,7 @@ final class GWS_Server implements MessageComponentInterface
 	public function ipcdbTimer()
 	{
 		Application::updateTime();
-		if ($message = GDO_Hook::table()->select()->first()->exec()->fetchRow())
+		if ($message = GDO_Hook::table()->select()->order('hook_id ASC')->first()->exec()->fetchRow())
 		{
 			try
 			{
