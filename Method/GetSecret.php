@@ -38,8 +38,17 @@ final class GetSecret extends MethodAjax
 	 */
 	public function execute(): GDT
 	{
+		// Mail is a private user setting, so it must never become part of the
+		// general GDO_User JSON used by profiles, searches or WebSocket users.
+		// This response is tied to the holder's authenticated session and is the
+		// one payload from which the app's own account page is initialised.
+		$user = Module_Core::instance()->gdoUserJSON();
+		if (GDO_Session::user()->isAuthenticated())
+		{
+			$user['user_email'] = GDO_Session::user()->getMail(false);
+		}
 		$json = [
-			'user' => Module_Core::instance()->gdoUserJSON(),
+			'user' => $user,
 			'cookie' => GDO_Session::$COOKIE_NAME,
 			'secret' => Module_Websocket::instance()->secret(),
 			'count' => $this->gdoParameterValue('count'),
