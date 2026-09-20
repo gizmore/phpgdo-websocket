@@ -284,7 +284,9 @@ final class GWS_Server implements MessageComponentInterface
 		Logger::logCron("GWS_Server::initGWSServer() Port $port");
 		$this->allowGuests = $gws->cfgAllowGuests();
 // 		$this->consoleLog = GWS_Global::$LOGGING = $gws->cfgConsoleLogging();
-		$this->server = IoServer::factory(new HttpServer(new WsServer($this)), $port, $this->socketOptions());
+		// TLS is terminated by the web server. Keep the clear-text upstream
+		// private so a direct, unauthenticated Internet listener cannot bypass it.
+		$this->server = IoServer::factory(new HttpServer(new WsServer($this)), $port, $this->socketOptions(), '127.0.0.1');
 		$this->handler->init();
 		$_REQUEST['_fmt'] = 'cli';
 		$this->registerCommands();
