@@ -16,7 +16,12 @@ final class Exec extends MethodPage
 
 	public function getPermission(): ?string { return Module_Websocket::instance()->cfgClientPermission(); }
 
-	public function getMethodTitle(): string
+    public function isShownInSitemap(): bool
+    {
+        return false;
+    }
+
+    public function getMethodTitle(): string
 	{
 		return 'Websocket Exec';
 	}
